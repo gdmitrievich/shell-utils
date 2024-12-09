@@ -6,12 +6,20 @@
 void process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
     char line[256] = {0};
     for (int i = first_filepath_idx; i < argc; ++i) {
-	   	char* state = NULL;
-		FILE* f = fopen(argv[i], "r");
+        char* state = NULL;
+        FILE* f = fopen(argv[i], "r");
 
-        while ((state = fgets(line, sizeof(line), f)))
-    		process_flags_on_line(flags, line);
+        while ((state = fgets(line, sizeof(line), f))) process_flags_on_line(flags, line);
 
         fclose(f);
     }
+}
+
+void process_flags_on_line(flags flags, const char* line) {
+    if (flags.b) process_b_flag_on_line(line);
+    if (flags.E) process_E_flag_on_line(line);
+    if (flags.n) process_n_flag_on_line(line);
+    if (flags.s) process_s_flag_on_line(line);
+    if (flags.T) process_T_flag_on_line(line);
+    if (flags.v) process_v_flag_on_line(line);
 }
