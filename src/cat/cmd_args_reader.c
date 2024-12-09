@@ -1,10 +1,10 @@
 #include "cmd_args_reader.h"
 
+#include <getopt.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <getopt.h>
 
 typedef struct option option;
 
@@ -57,9 +57,10 @@ flags get_cmd_arg_flags(int argc, char** argv) {
 }
 
 int get_idx_of_first_filepath(int argc, char** argv) {
-    while (getopt(argc, argv, "beEnstT") != -1) {}
+    while (getopt(argc, argv, "beEnstT") != -1) {
+    }
     if (argc == 1 || optind == argc) {
-		perror("cat: You should specify at least one filepath!");
+        perror("cat: You should specify at least one filepath!");
         exit(EXIT_FAILURE);
     }
 
