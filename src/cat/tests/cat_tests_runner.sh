@@ -30,7 +30,12 @@ function run_test() {
 		echo "Success"
 	else
 		echo "Fail"
+		echo "file: $files"
+		cat 1.txt
+		echo "-----------------------------"
+		cat 2.txt
 		diff 1.txt 2.txt
+		exit
 	fi
 	rm 1.txt 2.txt
 }
