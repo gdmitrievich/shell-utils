@@ -7,7 +7,7 @@
 #include "../common/common.h"
 
 void process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
-    char line[512] = {0};
+    char line[1024] = {0};
     int i = first_filepath_idx;
     while (i < argc) {
         FILE* f = fopen(argv[i], "r");
@@ -45,7 +45,7 @@ FILE* read_line_in_new_file(char* line, int* i, int argc, char** argv) {
     FILE* f = fopen(argv[*i], "r");
     print_error_if_cant_open_file("cat", argv[*i], f);
 
-    char l[256] = {0};
+    char l[1024] = {0};
     if (fgets(l, sizeof(l), f)) {
         strcat(line, l);
 
