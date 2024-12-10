@@ -91,6 +91,8 @@ void print_chars_until_new_line_char(const char* line) {
 }
 
 void process_n_flag_on_line(const char* line) {
+	if (!line) return;
+
     static int nLine = 1;
     printf("%6d\t%s", nLine++, line);
 }
