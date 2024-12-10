@@ -68,6 +68,8 @@ void process_flags_on_line(flags flags, char* line) {
 }
 
 void process_b_flag_on_line(const char* line) {
+	if (!line) return;
+
     if (!is_fully_empty_line(line))
         process_n_flag_on_line(line);
     else
