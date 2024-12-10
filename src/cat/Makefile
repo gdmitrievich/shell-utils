@@ -1,5 +1,6 @@
 # VARIABLES
 TARGET = s21_cat
+COMMON_DIR = ../common
 
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -std=c11
@@ -12,6 +13,7 @@ CPPCHECK_OPTS = --verbose --enable=all --template=gcc --error-exitcode=1 --langu
 
 # SOURCES
 SRCS = $(wildcard *.c)
+SRCS += $(COMMON_DIR)/common.c
 OBJS = $(SRCS:%.c=%.o)
 
 # TARGETS
@@ -25,6 +27,9 @@ $(TARGET): $(OBJS)
 	$(CC) $^ -o $@
 
 %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(COMMON_DIR)/%.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
