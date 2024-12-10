@@ -17,5 +17,7 @@ void process_E_flag_on_line(const char* line);
 void print_chars_until_new_line_char(const char* line);
 void process_n_flag_on_line(const char* line);
 void process_s_flag_on_line(const char* line);
+void process_T_flag_on_line(const char* line);
+int is_tab(char ch);
 
 #endif // FLAG_PERFORMER_H

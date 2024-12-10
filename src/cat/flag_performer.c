@@ -61,7 +61,7 @@ void process_flags_on_line(flags flags, char* line) {
     if (flags.E) process_E_flag_on_line(line);
     if (flags.n) process_n_flag_on_line(line);
     if (flags.s) process_s_flag_on_line(line);
-    // if (flags.T) process_T_flag_on_line(line);
+    if (flags.T) process_T_flag_on_line(line);
     // if (flags.v) process_v_flag_on_line(line);
 }
 
@@ -96,10 +96,24 @@ void process_n_flag_on_line(const char* line) {
 void process_s_flag_on_line(const char* line) {
     static int n = 0;
     if (is_fully_empty_line(line) && n == 0) {
-		printf("\n");
-		n++;
+        printf("\n");
+        n++;
     } else if (!is_fully_empty_line(line)) {
-		n = 0;
-		printf("%s", line);
-	}
+        n = 0;
+        printf("%s", line);
+    }
+}
+
+void process_T_flag_on_line(const char* line) {
+    size_t l = strlen(line);
+    for (size_t i = 0; i < l; ++i) {
+		if (is_tab(line[i]))
+        	printf("^I");
+		else
+        	printf("%c", line[i]);
+    }
+}
+
+int is_tab(char ch) {
+	return ch == '\t';
 }
