@@ -96,6 +96,8 @@ void process_n_flag_on_line(const char* line) {
 }
 
 void process_s_flag_on_line(const char* line) {
+	if (!line) return;
+
     static int n = 0;
     if (is_fully_empty_line(line) && n == 0) {
         printf("\n");
