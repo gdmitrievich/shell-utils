@@ -60,7 +60,7 @@ void process_flags_on_line(flags flags, char* line) {
     if (flags.b) process_b_flag_on_line(line);
     if (flags.E) process_E_flag_on_line(line);
     if (flags.n) process_n_flag_on_line(line);
-    // if (flags.s) process_s_flag_on_line(line);
+    if (flags.s) process_s_flag_on_line(line);
     // if (flags.T) process_T_flag_on_line(line);
     // if (flags.v) process_v_flag_on_line(line);
 }
@@ -91,4 +91,15 @@ void print_chars_until_new_line_char(const char* line) {
 void process_n_flag_on_line(const char* line) {
     static int nLine = 1;
     printf("%6d\t%s", nLine++, line);
+}
+
+void process_s_flag_on_line(const char* line) {
+    static int n = 0;
+    if (is_fully_empty_line(line) && n == 0) {
+		printf("\n");
+		n++;
+    } else if (!is_fully_empty_line(line)) {
+		n = 0;
+		printf("%s", line);
+	}
 }
