@@ -8,6 +8,7 @@
 
 typedef struct option option;
 
+#include "../common/common.h"
 #include "flags.h"
 
 flags get_cmd_arg_flags(int argc, char** argv) {
@@ -47,8 +48,7 @@ flags get_cmd_arg_flags(int argc, char** argv) {
                 break;
             case '?':
             default:
-                printf("ERROR: Invalid option!\n");
-                exit(1);
+                print_error("cat", "Invalid option");
                 break;
         }
     }
@@ -59,10 +59,7 @@ flags get_cmd_arg_flags(int argc, char** argv) {
 int get_idx_of_first_filepath(int argc, char** argv) {
     while (getopt(argc, argv, "beEnstT") != -1) {
     }
-    if (argc == 1 || optind == argc) {
-        perror("cat: You should specify at least one filepath!");
-        exit(EXIT_FAILURE);
-    }
+    if (argc == 1 || optind == argc) print_error("cat", "You should specify at least one file");
 
     return optind;
 }

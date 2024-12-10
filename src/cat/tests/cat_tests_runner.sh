@@ -12,6 +12,7 @@ make -C ${BINARY_DIR} all
 echo " "
 echo "Response to wrong flag:"
 ./"${BINARY}" -q $test_file
+
 echo " "
 echo "Response to wrong file:"
 ./"${BINARY}" -n nofile.txt

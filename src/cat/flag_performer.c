@@ -25,7 +25,7 @@ void process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
             process_flags_on_line(flags, line);
         }
 
-        if (f) fclose(f);
+        fclose(f);
         ++i;
     }
 }
