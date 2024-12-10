@@ -119,6 +119,8 @@ void process_T_flag_on_line(const char* line) {
 int is_tab(char ch) { return ch == '\t'; }
 
 void process_v_flag_on_line(char* line) {
+    if (!line) return;
+
     char* new_line = calloc(strlen(line) * 4 + 1, sizeof(char));
     if (!new_line) {
         perror("cat");
@@ -128,31 +130,28 @@ void process_v_flag_on_line(char* line) {
     size_t l = strlen(line);
     for (size_t i = 0; i < l; ++i) {
         unsigned char c = line[i];
-        char str[5] = {0};
-        if (is_new_line_char(c) || is_tab(c)) {
-            snprintf(str, sizeof(str), "%c", c);
-            strcat(new_line, str);
-        } else if (c == 127) {
-            snprintf(str, sizeof(str), "^%c", c - 64);
-            strcat(new_line, str);
-        } else if (c < 32) {
-            snprintf(str, sizeof(str), "^%c", c + 64);
-            strcat(new_line, str);
-        } else if (c < 128) {
-            snprintf(str, sizeof(str), "%c", c);
-            strcat(new_line, str);
-        } else if (c < 160) {
-            snprintf(str, sizeof(str), "M-^%c", c - 64);
-            strcat(new_line, str);
-        } else if (c < 255) {
-            snprintf(str, sizeof(str), "M-%c", c - 128);
-            strcat(new_line, str);
-        } else {
-            snprintf(str, sizeof(str), "M-%c", c - 192);
-            strcat(new_line, str);
-        }
+        if (is_new_line_char(c) || is_tab(c))
+            strcat_formated_char_as_str(new_line, "%c", c);
+        else if (c == 127)
+            strcat_formated_char_as_str(new_line, "^%c", c - 64);
+        else if (c < 32)
+            strcat_formated_char_as_str(new_line, "^%c", c + 64);
+        else if (c < 128)
+            strcat_formated_char_as_str(new_line, "%c", c);
+        else if (c < 160)
+            strcat_formated_char_as_str(new_line, "M-^%c", c - 64);
+        else if (c < 255)
+            strcat_formated_char_as_str(new_line, "M-%c", c - 128);
+        else
+            strcat_formated_char_as_str(new_line, "M-%c", c - 192);
     }
 
     strncpy(line, new_line, strlen(new_line) + 1);
     free(new_line);
+}
+
+void strcat_formated_char_as_str(char* dest, const char* format, unsigned char ch) {
+    char str[5] = {0};
+    snprintf(str, sizeof(str), format, ch);
+    strcat(dest, str);
 }

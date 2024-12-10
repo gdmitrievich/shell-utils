@@ -23,5 +23,6 @@ void process_T_flag_on_line(const char* line);
 int is_tab(char ch);
 
 void process_v_flag_on_line(char* line);
+void strcat_formated_char_as_str(char* dest, const char* format, unsigned char ch);
 
 #endif  // FLAG_PERFORMER_H
