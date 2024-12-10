@@ -1,7 +1,6 @@
 #!/bin/bash
 
-#flags=( -b -e -E -n -s -t -T )
-flags=( -b )
+flags=( -b -e -E -n -s -t -T )
 DATASETS_DIR=./datasets
 test_files=($( find ${DATASETS_DIR} -type f -name "*.txt" ))
 
@@ -30,12 +29,6 @@ function run_test() {
 		echo "Success"
 	else
 		echo "Fail"
-		echo "file: $files"
-		cat 1.txt
-		echo "-----------------------------"
-		cat 2.txt
-		diff 1.txt 2.txt
-		exit
 	fi
 	rm 1.txt 2.txt
 }
