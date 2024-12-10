@@ -66,12 +66,10 @@ void process_flags_on_line(flags flags, char* line) {
 }
 
 void process_b_flag_on_line(const char* line) {
-    static int nLine = 1;
-    if (!is_fully_empty_line(line)) {
-        printf("%6d\t%s", nLine++, line);
-    } else {
+    if (!is_fully_empty_line(line))
+        process_n_flag_on_line(line);
+    else
         printf("%s", line);
-    }
 }
 
 int is_fully_empty_line(const char* line) { return line[0] == '\n'; }
