@@ -49,3 +49,9 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Builded executables.
+s21_cat
+s21_grep
+
+.vscode
