@@ -36,6 +36,6 @@ full_clean: clean
 .PHONY: full_clean
 
 tools:
-	clang-format -i $(SRCS)
+	clang-format -i $(SRCS) *.h
 	cppcheck $(CPPCHECK_OPTS) $(SRCS)
 .PHONY: tools

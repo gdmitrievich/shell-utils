@@ -1,8 +1,9 @@
 #ifndef FLAG_PERFORMER_H
 #define FLAG_PERFORMER_H
 
-#include "flags.h"
 #include <stdio.h>
+
+#include "flags.h"
 
 void process_flags(flags flags, int first_filepath_idx, int argc, char** argv);
 int has_new_line_char_at_the_end(const char* line);
@@ -23,4 +24,4 @@ int is_tab(char ch);
 
 void process_v_flag_on_line(char* line);
 
-#endif // FLAG_PERFORMER_H
+#endif  // FLAG_PERFORMER_H

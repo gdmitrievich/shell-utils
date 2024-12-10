@@ -6,4 +6,4 @@
 flags get_cmd_arg_flags(int argc, char** argv);
 int get_idx_of_first_filepath(int argc, char** argv);
 
-#endif // CMD_ARGS_READER_H
+#endif  // CMD_ARGS_READER_H
