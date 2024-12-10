@@ -77,6 +77,8 @@ void process_b_flag_on_line(const char* line) {
 int is_fully_empty_line(const char* line) { return is_new_line_char(line[0]); }
 
 void process_E_flag_on_line(const char* line) {
+	if (!line) return;
+
     if (has_new_line_char_at_the_end(line)) {
         print_chars_until_new_line_char(line);
         printf("$\n");
