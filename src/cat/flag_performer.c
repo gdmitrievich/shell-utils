@@ -59,6 +59,8 @@ FILE* read_new_line(char* line, int* i, int argc, char** argv) {
 }
 
 void process_flags_on_line(flags flags, char* line) {
+	if (!line) return;
+
     if (flags.v) process_v_flag_on_line(line);
     if (flags.b) process_b_flag_on_line(line);
     if (flags.E) process_E_flag_on_line(line);
