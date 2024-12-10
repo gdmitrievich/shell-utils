@@ -107,6 +107,8 @@ void process_s_flag_on_line(const char* line) {
 }
 
 void process_T_flag_on_line(const char* line) {
+	if (!line) return;
+
     size_t l = strlen(line);
     for (size_t i = 0; i < l; ++i) {
         if (is_tab(line[i]))
