@@ -86,6 +86,8 @@ void process_E_flag_on_line(const char* line) {
 }
 
 void print_chars_until_new_line_char(const char* line) {
+	if (!line) return;
+
     size_t l = strlen(line);
     for (size_t i = 0; i < l && !is_new_line_char(line[i]); ++i) printf("%c", line[i]);
 }
