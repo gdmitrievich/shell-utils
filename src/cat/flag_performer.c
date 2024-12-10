@@ -59,7 +59,7 @@ FILE* read_new_line(char* line, int* i, int argc, char** argv) {
 void process_flags_on_line(flags flags, char* line) {
     if (flags.b) process_b_flag_on_line(line);
     if (flags.E) process_E_flag_on_line(line);
-    // if (flags.n) process_n_flag_on_line(line);
+    if (flags.n) process_n_flag_on_line(line);
     // if (flags.s) process_s_flag_on_line(line);
     // if (flags.T) process_T_flag_on_line(line);
     // if (flags.v) process_v_flag_on_line(line);
@@ -88,4 +88,9 @@ void process_E_flag_on_line(const char* line) {
 void print_chars_until_new_line_char(const char* line) {
     size_t l = strlen(line);
     for (size_t i = 0; i < l && line[i] != '\n'; ++i) printf("%c", line[i]);
+}
+
+void process_n_flag_on_line(const char* line) {
+    static int nLine = 1;
+    printf("%6d\t%s", nLine++, line);
 }

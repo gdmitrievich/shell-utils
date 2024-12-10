@@ -15,5 +15,6 @@ int is_fully_empty_line(const char* line);
 
 void process_E_flag_on_line(const char* line);
 void print_chars_until_new_line_char(const char* line);
+void process_n_flag_on_line(const char* line);
 
 #endif // FLAG_PERFORMER_H
