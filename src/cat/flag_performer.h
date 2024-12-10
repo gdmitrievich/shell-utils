@@ -9,8 +9,11 @@ int has_new_line_char_at_the_end(const char* line);
 int fpeek(FILE* f);
 FILE* read_new_line(char* line, int* i, int argc, char** argv);
 
-void process_flags_on_line(flags flags, const char* line);
+void process_flags_on_line(flags flags, char* line);
 void process_b_flag_on_line(const char* line);
 int is_fully_empty_line(const char* line);
+
+void process_E_flag_on_line(const char* line);
+void print_chars_until_new_line_char(const char* line);
 
 #endif // FLAG_PERFORMER_H
