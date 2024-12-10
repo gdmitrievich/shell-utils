@@ -29,7 +29,9 @@ void process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
     }
 }
 
-int has_new_line_char_at_the_end(const char* line) { return line[strlen(line) - 1] == '\n'; }
+int has_new_line_char_at_the_end(const char* line) { return is_new_line_char(line[strlen(line) - 1]); }
+
+int is_new_line_char(char ch) { return ch == '\n'; }
 
 int fpeek(FILE* f) {
     int c = fgetc(f);
@@ -57,12 +59,12 @@ FILE* read_new_line(char* line, int* i, int argc, char** argv) {
 }
 
 void process_flags_on_line(flags flags, char* line) {
+    if (flags.v) process_v_flag_on_line(line);
     if (flags.b) process_b_flag_on_line(line);
     if (flags.E) process_E_flag_on_line(line);
     if (flags.n) process_n_flag_on_line(line);
     if (flags.s) process_s_flag_on_line(line);
     if (flags.T) process_T_flag_on_line(line);
-    // if (flags.v) process_v_flag_on_line(line);
 }
 
 void process_b_flag_on_line(const char* line) {
@@ -72,7 +74,7 @@ void process_b_flag_on_line(const char* line) {
         printf("%s", line);
 }
 
-int is_fully_empty_line(const char* line) { return line[0] == '\n'; }
+int is_fully_empty_line(const char* line) { return is_new_line_char(line[0]); }
 
 void process_E_flag_on_line(const char* line) {
     if (has_new_line_char_at_the_end(line)) {
@@ -85,7 +87,7 @@ void process_E_flag_on_line(const char* line) {
 
 void print_chars_until_new_line_char(const char* line) {
     size_t l = strlen(line);
-    for (size_t i = 0; i < l && line[i] != '\n'; ++i) printf("%c", line[i]);
+    for (size_t i = 0; i < l && !is_new_line_char(line[i]); ++i) printf("%c", line[i]);
 }
 
 void process_n_flag_on_line(const char* line) {
@@ -107,13 +109,50 @@ void process_s_flag_on_line(const char* line) {
 void process_T_flag_on_line(const char* line) {
     size_t l = strlen(line);
     for (size_t i = 0; i < l; ++i) {
-		if (is_tab(line[i]))
-        	printf("^I");
-		else
-        	printf("%c", line[i]);
+        if (is_tab(line[i]))
+            printf("^I");
+        else
+            printf("%c", line[i]);
     }
 }
 
-int is_tab(char ch) {
-	return ch == '\t';
+int is_tab(char ch) { return ch == '\t'; }
+
+void process_v_flag_on_line(char* line) {
+    char* new_line = calloc(strlen(line) * 4 + 1, sizeof(char));
+    if (!new_line) {
+        perror("cat");
+        exit(EXIT_FAILURE);
+    }
+
+    size_t l = strlen(line);
+    for (size_t i = 0; i < l; ++i) {
+        unsigned char c = line[i];
+        char str[5] = {0};
+        if (is_new_line_char(c) || is_tab(c)) {
+            snprintf(str, sizeof(str), "%c", c);
+            strcat(new_line, str);
+        } else if (c == 127) {
+            snprintf(str, sizeof(str), "^%c", c - 64);
+            strcat(new_line, str);
+        } else if (c < 32) {
+            snprintf(str, sizeof(str), "^%c", c + 64);
+            strcat(new_line, str);
+        } else if (c < 128) {
+            snprintf(str, sizeof(str), "%c", c);
+            strcat(new_line, str);
+        } else if (c < 160) {
+            snprintf(str, sizeof(str), "M-^%c", c - 64);
+            strcat(new_line, str);
+        } else if (c < 255) {
+            snprintf(str, sizeof(str), "M-%c", c - 128);
+            strcat(new_line, str);
+        } else {
+            snprintf(str, sizeof(str), "M-%c", c - 192);
+            strcat(new_line, str);
+        }
+    }
+
+    strncpy(line, new_line, strlen(new_line) + 1);
+    free(new_line);
 }
