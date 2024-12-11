@@ -31,8 +31,7 @@ cmd_args_data retrieve_cmd_arg_data(int argc, char** argv) {
         switch (flag) {
             case 'e':
                 f.flags.e = 1;
-                f.pattern = try_allocate_memory("grep", strlen(optarg));
-                strcpy(f.pattern, optarg);
+                try_append_str(&f.pattern, optarg);
                 break;
             case 'i':
                 f.flags.i = 1;
@@ -57,8 +56,7 @@ cmd_args_data retrieve_cmd_arg_data(int argc, char** argv) {
                 break;
             case 'f':
                 f.flags.f = 1;
-                f.pattern_file = try_allocate_memory("grep", strlen(optarg));
-                strcpy(f.pattern_file, optarg);
+                try_append_str(&f.pattern_file, optarg);
                 break;
             case 'o':
                 f.flags.o = 1;

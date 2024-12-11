@@ -28,3 +28,23 @@ void* try_allocate_memory(const char* utility_name, size_t size) {
     memset(ptr, 0, size);
     return ptr;
 }
+
+void* try_reallocate_memory(const char* utility_name, void* src, size_t size) {
+    void* new_ptr = realloc(src, size);
+    if (!new_ptr) print_error(utility_name, NULL);
+
+    return new_ptr;
+}
+
+int has_new_line_char_at_the_end(const char* line) { return is_new_line_char(line[strlen(line) - 1]); }
+int is_new_line_char(char ch) { return ch == '\n'; }
+
+void try_append_str(char** str, const char* src) {
+    if (!src) return;
+
+    if (*str)
+        *str = try_reallocate_memory("grep", *str, strlen(*str) + strlen(src) + 1);
+    else
+        *str = try_allocate_memory("grep", strlen(src) + 1);
+    strcat(*str, src);
+}
