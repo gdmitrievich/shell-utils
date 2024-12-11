@@ -8,5 +8,5 @@ void init(cmd_args_data* cad) {
     memset(cad->pattern, 0, sizeof(cad->pattern));
     memset(cad->pattern_file, 0, sizeof(cad->pattern_file));
     memset(cad->search_files, 0, sizeof(cad->search_files));
-	cad->n_search_files = 0;
+    cad->n_search_files = 0;
 }

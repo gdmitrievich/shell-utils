@@ -73,8 +73,7 @@ cmd_args_data retrieve_cmd_arg_data(int argc, char** argv) {
     }
 
     f.n_search_files = argc - optind;
-    for (int i = optind; i < argc; ++i)
-        strcat(f.search_files[i], argv[i]);
+    for (int i = optind; i < argc; ++i) strcat(f.search_files[i], argv[i]);
 
     return f;
 }
