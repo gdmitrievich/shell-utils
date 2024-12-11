@@ -3,7 +3,7 @@ TARGET = s21_grep
 COMMON_DIR = ../common
 
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -std=c11
+CFLAGS = -g -Wall -Wextra -Werror -std=c11
 
 RM = rm -rf
 

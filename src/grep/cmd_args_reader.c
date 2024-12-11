@@ -73,8 +73,12 @@ cmd_args_data retrieve_cmd_arg_data(int argc, char** argv) {
 
     if (optind == argc) print_error("grep", "You should specify at least one file");
 
-    f.n_search_files = argc - optind;
-    f.argv = argv;
+    int n_files = argc - optind + 1;
+    f.search_files = (char**)try_allocate_memory("grep", sizeof(char*) * n_files + 1);
+    for (int i = optind, j = 0; i < argc; ++i, ++j) {
+        try_append_str(&(f.search_files[j]), argv[i]);
+    }
+    f.search_files[n_files] = NULL;
 
     return f;
 }

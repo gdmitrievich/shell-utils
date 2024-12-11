@@ -29,9 +29,12 @@ void* try_allocate_memory(const char* utility_name, size_t size) {
     return ptr;
 }
 
-void* try_reallocate_memory(const char* utility_name, void* src, size_t size) {
-    void* new_ptr = realloc(src, size);
-    if (!new_ptr) print_error(utility_name, NULL);
+void* try_reallocate_memory(const char* utility_name, void* src, size_t init_size, size_t new_size) {
+    void* new_ptr = try_allocate_memory(utility_name, new_size);
+
+    memcpy(new_ptr, src, init_size);
+    memset(new_ptr + init_size, 0, new_size - init_size);
+	free(src);
 
     return new_ptr;
 }
@@ -43,7 +46,7 @@ void try_append_str(char** str, const char* src) {
     if (!src) return;
 
     if (*str)
-        *str = try_reallocate_memory("grep", *str, strlen(*str) + strlen(src) + 1);
+        *str = try_reallocate_memory("grep", *str, strlen(*str) + 1, strlen(*str) + strlen(src) + 1);
     else
         *str = try_allocate_memory("grep", strlen(src) + 1);
     strcat(*str, src);

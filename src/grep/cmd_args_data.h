@@ -20,8 +20,7 @@ typedef struct {
     char* pattern;  // Both -e and -f file.
     char* pattern_file;
 
-    char** argv;
-    int n_search_files;
+    char** search_files;
 } cmd_args_data;
 
 void init_cad(cmd_args_data* cad);
