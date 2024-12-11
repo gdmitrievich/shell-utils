@@ -25,9 +25,8 @@ cmd_args_data retrieve_cmd_arg_data(int argc, char** argv) {
                              {0, 0, 0, 0}};
 
     int flag = 0;
-    opterr = 0;
     cmd_args_data f;
-    init(&f);
+    init_cad(&f);
     while ((flag = getopt_long(argc, argv, ":e:ivclnhsf:o", long_options, NULL)) != -1) {
         switch (flag) {
             case 'e':
@@ -72,8 +71,10 @@ cmd_args_data retrieve_cmd_arg_data(int argc, char** argv) {
         }
     }
 
+    if (optind == argc) print_error("grep", "You should specify at least one file");
+
     f.n_search_files = argc - optind;
-    for (int i = optind; i < argc; ++i) strcat(f.search_files[i], argv[i]);
+    f.argv = argv;
 
     return f;
 }
