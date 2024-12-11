@@ -1,12 +1,19 @@
 #include "cmd_args_data.h"
 
+#include <stdlib.h>
 #include <string.h>
 
-void init(cmd_args_data* cad) {
+#include "../common/common.h"
+
+void init_cad(cmd_args_data* cad) {
     cad->flags = (flags){0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-    memset(cad->pattern, 0, sizeof(cad->pattern));
-    memset(cad->pattern_file, 0, sizeof(cad->pattern_file));
-    memset(cad->search_files, 0, sizeof(cad->search_files));
+    cad->pattern = cad->pattern_file = NULL;
+    cad->argv = NULL;
     cad->n_search_files = 0;
+}
+
+void free_cad(cmd_args_data cad) {
+    free(cad.pattern);
+    free(cad.pattern_file);
 }

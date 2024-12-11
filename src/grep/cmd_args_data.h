@@ -17,13 +17,14 @@ typedef struct {
 typedef struct {
     flags flags;
 
-    char pattern[1024];  // Both -e and -f file.
-    char pattern_file[256];
+    char* pattern;  // Both -e and -f file.
+    char* pattern_file;
 
-    char search_files[256][256];
+    char** argv;
     int n_search_files;
 } cmd_args_data;
 
-void init(cmd_args_data* cad);
+void init_cad(cmd_args_data* cad);
+void free_cad(cmd_args_data cad);
 
 #endif  // CMD_ARGS_DATA
