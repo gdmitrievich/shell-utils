@@ -3,18 +3,21 @@
 
 typedef struct {
     int number;
-    char content[1024];
+    char* content;
 } matched_line;
 
 typedef struct {
-    char name[1024];
-    matched_line matched_lines[1024];
+    char* name;
+    matched_line* matched_lines;
 } matched_file;
 
 typedef struct {
-    matched_file matched_files[1024];
+    matched_file* matched_files;
 } regex_matches;
 
-void init_regex_matches(regex_matches* rm);
+void init_rm(regex_matches* rm);
+void free_rm(regex_matches rm);
+void free_mf(matched_file* file);
+void free_ml(matched_line* line);
 
 #endif  // REGEX_MATCHES
