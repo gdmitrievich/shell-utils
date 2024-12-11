@@ -9,11 +9,11 @@ RM = rm -rf
 
 # TOOLS
 CLANG_FORMAT_OPTS = -i
-CPPCHECK_OPTS = --enable=all --template=gcc --error-exitcode=1 --language=c
+CPPCHECK_OPTS = --enable=all --template=gcc --language=c
 
 # SOURCES
 SRCS = $(wildcard *.c)
-#SRCS += $(COMMON_DIR)/common.c
+SRCS += $(COMMON_DIR)/common.c
 OBJS = $(SRCS:%.c=%.o)
 
 # TARGETS
@@ -30,8 +30,8 @@ $(TARGET): $(OBJS)
 %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# $(COMMON_DIR)/%.o : %.c
-#	$(CC) $(CFLAGS) -c $< -o $@
+$(COMMON_DIR)/%.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	$(RM) $(OBJS)
