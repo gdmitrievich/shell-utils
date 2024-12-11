@@ -30,9 +30,6 @@ void process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
     }
 }
 
-int has_new_line_char_at_the_end(const char* line) { return is_new_line_char(line[strlen(line) - 1]); }
-
-int is_new_line_char(char ch) { return ch == '\n'; }
 
 int fpeek(FILE* f) {
     if (!f) return -1;
