@@ -74,7 +74,7 @@ const char* get_next_file_name(const char* file_name, const matched_line* m_line
 }
 
 size_t find_idx_of_last_matched_line_with_file_name(const char* file_name, const matched_line* m_lines) {
-    if (!file_name) return NULL;
+    if (!file_name) return (size_t)-1;
 
     // TODO: check for (size_t) -1;
     size_t first_idx = find_idx_of_first_matched_line_with_file_name(file_name, m_lines);
@@ -82,4 +82,13 @@ size_t find_idx_of_last_matched_line_with_file_name(const char* file_name, const
     while (!is_last(&m_lines[i]) && !strcmp(m_lines[first_idx].file_name, m_lines[i + 1].file_name)) ++i;
 
     return is_last(&m_lines[i]) ? (size_t)-1 : i;
+}
+
+size_t find_idx_of_first_matched_line_with_file_name(const char* file_name, const matched_line* m_lines) {
+    if (!file_name) return (size_t)-1;
+
+    size_t idx = 0;
+    while (!is_last(&m_lines[idx]) && strcmp(file_name, m_lines[idx].file_name)) ++idx;
+
+    return is_last(&m_lines[idx]) ? (size_t)-1 : idx;
 }

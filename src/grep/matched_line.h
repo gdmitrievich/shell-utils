@@ -22,5 +22,6 @@ int is_last(const matched_line* ml);
 
 const char* get_next_file_name(const char* file_name, const matched_line* m_lines);
 size_t find_idx_of_last_matched_line_with_file_name(const char* file_name, const matched_line* m_lines);
+size_t find_idx_of_first_matched_line_with_file_name(const char* file_name, const matched_line* m_lines);
 
 #endif  // MATCHED_LINE_H
