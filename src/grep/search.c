@@ -11,7 +11,7 @@
 #include "../common/common.h"
 
 matched_line* get_matched_lines(cmd_args_data* cad) {
-    set_retrieved_regexes_from_file(&(cad->pattern), cad->pattern_file);
+    if (cad->flags.f) set_retrieved_regexes_from_file(&(cad->pattern), cad->pattern_file);
     return get_reg_exec_results_as_matched_lines(cad);
 }
 
@@ -41,8 +41,8 @@ matched_line* get_reg_exec_results_as_matched_lines(const cmd_args_data* cmd) {
     matched_line* matched_lines = NULL;
     regex_t regex;
     size_t error = 0;
-    if ((error = regcomp(&regex, cmd->pattern, REG_EXTENDED | (cmd->flags.i ? REG_ICASE : 0))) !=
-        0) {  // REG_EXTENDED to use "|" in pattern.
+    // REG_EXTENDED to use "|" in pattern.
+    if ((error = regcomp(&regex, cmd->pattern, REG_EXTENDED | (cmd->flags.i ? REG_ICASE : 0))) != 0) {
         // If errbuf_size is 0 returns the size of the buffer needed to hold the generated string.
         size_t err_len = regerror(error, &regex, (char*)NULL, 0);
 
@@ -57,18 +57,31 @@ matched_line* get_reg_exec_results_as_matched_lines(const cmd_args_data* cmd) {
         print_error_if_cant_open_file("grep", cmd->search_files[i], fp);
 
         char buf[BUFFSIZE] = {0};
+        size_t line_num = 1;
         while (fgets(buf, BUFFSIZE, fp)) {
-            const int NMATCH = 512;
-            regmatch_t rt[NMATCH];
-            int state = regexec(&regex, buf, NMATCH, rt, 0);
-
+            regmatch_t rm[1];
+            int state = regexec(&regex, buf, 1, rm, 0);
             if ((state == 0 && !cmd->flags.v) || (state == REG_NOMATCH && cmd->flags.v)) {
-                printf("src: %s", buf);
-                printf("reg: %.*s\n", rt->rm_eo - rt->rm_so, buf + rt->rm_so);
-            } else if (state == REG_NOMATCH) {
-            } else {
-                // Error.
+                if (cmd->flags.o) {
+                    set_all_matches_from_line(&matched_lines, &regex, buf, rm, cmd->search_files[i],
+                                              line_num);
+                } else {
+                    int state = regexec(&regex, buf, 1, rm, 0);
+                    if (state == 0) {
+                        matched_line ml = {NULL, line_num, NULL};
+                        try_append_str(&ml.file_name, cmd->search_files[i]);
+
+                        buf[strlen(buf) - 1] = '\0'; // Remove \n.
+                        try_append_str(&ml.line, buf);
+
+                        try_append_matched_line(&matched_lines, &ml);
+                    } else {
+                        // Error.
+                    }
+                }
             }
+
+            ++line_num;
         }
 
         fclose(fp);
@@ -76,4 +89,25 @@ matched_line* get_reg_exec_results_as_matched_lines(const cmd_args_data* cmd) {
 
     regfree(&regex);
     return matched_lines;
+}
+
+void set_all_matches_from_line(matched_line** m_lines, regex_t* regex, char* str, regmatch_t* rm,
+                               const char* file_name, size_t line_number) {
+    int state = 0;
+    while (state == 0) {
+        state = regexec(regex, str, 1, rm, REG_NOTBOL);
+        if (state == 0 && *str) {
+            matched_line ml = {NULL, line_number, NULL};
+            try_append_str(&ml.file_name, file_name);
+
+            int len = rm[0].rm_eo - rm[0].rm_so;
+            char line[len + 1];
+            substr(line, str, rm[0].rm_so, len);
+            try_append_str(&ml.line, line);
+
+            try_append_matched_line(m_lines, &ml);
+
+            str += rm[0].rm_eo;
+        }
+    }
 }
