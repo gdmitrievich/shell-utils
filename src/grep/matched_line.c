@@ -64,3 +64,10 @@ size_t get_count_of_files_with_at_least_one_matched_line(const matched_line* m_l
 }
 
 int is_last(const matched_line* ml) { return ml->line_number == -1; }
+
+const char* get_next_file_name(const char* file_name, const matched_line* m_lines) {
+	if (!file_name) return m_lines[0].file_name;
+
+	size_t idx = find_idx_of_last_matched_line_with_file_name(file_name, m_lines);
+	return m_lines[idx + 1].file_name;
+}
