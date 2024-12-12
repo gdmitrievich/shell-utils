@@ -3,19 +3,19 @@
 #include <stdio.h>
 
 void output(const matched_line* m_lines, const cmd_args_data* cmd) {
-	if (!m_lines || !cmd) return;
+    if (!m_lines || !cmd) return;
 
-	size_t n_files = get_count_of_files_with_at_least_one_matched_line(m_lines);
+    size_t n_files = get_count_of_files_with_at_least_one_matched_line(m_lines);
     const flags* f = &cmd->flags;
     if (n_files > 0 && f->l) {
-        print_file_names_with_at_least_one_matched_line();
+        print_file_names_with_at_least_one_matched_line(m_lines);
     } else if (n_files > 0) {
         if (f->c) {
-			char* file = NULL;
-			while ((file = get_next_file(file)) != NULL) {
+            const char* file = NULL;
+            while ((file = get_next_file_name(file, m_lines)) != NULL) {
                 printf("%s:", file);
-                printf("%d\n", get_matched_lines_count_on_file(file));
-			}
+                printf("%ld\n", get_matched_lines_count_on_file(file, m_lines));
+            }
         } else {
             size_t n_lines = get_matched_lines_count(m_lines);
             for (size_t i = 0; i < n_lines; ++i) {
