@@ -10,9 +10,9 @@
 
 #include "../common/common.h"
 
-void set_regex_matches(cmd_args_data* cad) {
+matched_line* get_matched_lines(cmd_args_data* cad) {
     set_retrieved_regexes_from_file(&(cad->pattern), cad->pattern_file);
-    set_reg_exec_results(cad);
+    return get_reg_exec_results_as_matched_lines(cad);
 }
 
 void set_retrieved_regexes_from_file(char** pattern_ptr, const char* pattern_file) {
@@ -35,12 +35,14 @@ void set_retrieved_regexes_from_file(char** pattern_ptr, const char* pattern_fil
     fclose(fp);
 }
 
-void set_reg_exec_results(const cmd_args_data* cmd) {
-    if (cmd->pattern == NULL) return;
+matched_line* get_reg_exec_results_as_matched_lines(const cmd_args_data* cmd) {
+    if (cmd->pattern == NULL) return NULL;
 
+    matched_line* matched_lines = NULL;
     regex_t regex;
     size_t error = 0;
-    if ((error = regcomp(&regex, cmd->pattern, REG_EXTENDED)) != 0) {  // REG_EXTENDED to use "|" in pattern.
+    if ((error = regcomp(&regex, cmd->pattern, REG_EXTENDED | (cmd->flags.i ? REG_ICASE : 0))) !=
+        0) {  // REG_EXTENDED to use "|" in pattern.
         // If errbuf_size is 0 returns the size of the buffer needed to hold the generated string.
         size_t err_len = regerror(error, &regex, (char*)NULL, 0);
 
@@ -56,13 +58,14 @@ void set_reg_exec_results(const cmd_args_data* cmd) {
 
         char buf[BUFFSIZE] = {0};
         while (fgets(buf, BUFFSIZE, fp)) {
-            int err = 0;
             const int NMATCH = 512;
             regmatch_t rt[NMATCH];
-            if ((err = regexec(&regex, buf, NMATCH, rt, 0)) == 0) {
+            int state = regexec(&regex, buf, NMATCH, rt, 0);
+
+            if ((state == 0 && !cmd->flags.v) || (state == REG_NOMATCH && cmd->flags.v)) {
                 printf("src: %s", buf);
                 printf("reg: %.*s\n", rt->rm_eo - rt->rm_so, buf + rt->rm_so);
-            } else if (err == REG_NOMATCH) {
+            } else if (state == REG_NOMATCH) {
             } else {
                 // Error.
             }
@@ -72,4 +75,5 @@ void set_reg_exec_results(const cmd_args_data* cmd) {
     }
 
     regfree(&regex);
+    return matched_lines;
 }
