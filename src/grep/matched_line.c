@@ -49,7 +49,7 @@ void copy_matched_line(matched_line* dest, const matched_line* src) {
 }
 
 size_t get_count_of_files_with_at_least_one_matched_line(const matched_line* m_lines) {
-    if (!m_lines) return (size_t)-1;
+    if (!m_lines) return __SIZE_MAX__;
 
     size_t n = 0;
     const char* prev_file_name = NULL;
@@ -68,27 +68,26 @@ int is_last(const matched_line* ml) { return ml->line_number == -1; }
 const char* get_next_file_name(const char* file_name, const matched_line* m_lines) {
     if (!file_name) return m_lines[0].file_name;
 
-    // TODO: check for (size_t) -1;
     size_t idx = find_idx_of_last_matched_line_with_file_name(file_name, m_lines);
-    return m_lines[idx + 1].file_name;
+    return idx == __SIZE_MAX__ || is_last(&m_lines[idx + 1]) ? NULL : m_lines[idx + 1].file_name;
 }
 
 size_t find_idx_of_last_matched_line_with_file_name(const char* file_name, const matched_line* m_lines) {
-    if (!file_name) return (size_t)-1;
+    if (!file_name) return __SIZE_MAX__;
 
-    // TODO: check for (size_t) -1;
     size_t first_idx = find_idx_of_first_matched_line_with_file_name(file_name, m_lines);
     size_t i = first_idx;
-    while (!is_last(&m_lines[i]) && !strcmp(m_lines[first_idx].file_name, m_lines[i + 1].file_name)) ++i;
+    if (first_idx != __SIZE_MAX__)
+        while (!is_last(&m_lines[i]) && !strcmp(m_lines[first_idx].file_name, m_lines[i + 1].file_name)) ++i;
 
-    return is_last(&m_lines[i]) ? (size_t)-1 : i;
+    return first_idx == __SIZE_MAX__ || is_last(&m_lines[i]) ? __SIZE_MAX__ : i;
 }
 
 size_t find_idx_of_first_matched_line_with_file_name(const char* file_name, const matched_line* m_lines) {
-    if (!file_name) return (size_t)-1;
+    if (!file_name) return __SIZE_MAX__;
 
     size_t idx = 0;
     while (!is_last(&m_lines[idx]) && strcmp(file_name, m_lines[idx].file_name)) ++idx;
 
-    return is_last(&m_lines[idx]) ? (size_t)-1 : idx;
+    return is_last(&m_lines[idx]) ? __SIZE_MAX__ : idx;
 }
