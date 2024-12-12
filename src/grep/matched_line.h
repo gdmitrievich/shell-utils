@@ -17,4 +17,7 @@ void try_append_matched_line(matched_line** m_lines, const matched_line* src_m_l
 size_t get_matched_lines_count(const matched_line* m_lines);
 void copy_matched_line(matched_line* dest, const matched_line* src);
 
+size_t get_count_of_files_with_at_least_one_matched_line(const matched_line* m_lines);
+int is_last(const matched_line* ml);
+
 #endif  // MATCHED_LINE_H

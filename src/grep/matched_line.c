@@ -1,13 +1,14 @@
 #include "matched_line.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "../common/common.h"
 
 void free_matched_lines(matched_line* m_lines) {
     if (!m_lines) return;
 
-    for (int i = 0; m_lines[i].line_number != -1; ++i) free_matched_line(&m_lines[i]);
+    for (int i = 0; !is_last(&m_lines[i]); ++i) free_matched_line(&m_lines[i]);
 
     free(m_lines);
 }
@@ -37,7 +38,7 @@ void try_append_matched_line(matched_line** m_lines, const matched_line* src_m_l
 
 size_t get_matched_lines_count(const matched_line* m_lines) {
     size_t s = 0;
-    while (m_lines[s].line_number != -1) ++s;
+    while (!is_last(&m_lines[s])) ++s;
     return s;
 }
 
@@ -46,3 +47,20 @@ void copy_matched_line(matched_line* dest, const matched_line* src) {
     try_append_str(&dest->line, src->line);
     dest->line_number = src->line_number;
 }
+
+size_t get_count_of_files_with_at_least_one_matched_line(const matched_line* m_lines) {
+    if (!m_lines) return (size_t)-1;
+
+    size_t n = 0;
+    const char* prev_file_name = NULL;
+    for (size_t i = 0; !is_last(&m_lines[i]); ++i) {
+        if (!prev_file_name || strcmp(prev_file_name, m_lines[i].file_name)) {
+            n++;
+            prev_file_name = m_lines[i].file_name;
+        }
+    }
+
+    return n;
+}
+
+int is_last(const matched_line* ml) { return ml->line_number == -1; }
