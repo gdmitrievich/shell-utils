@@ -66,8 +66,20 @@ size_t get_count_of_files_with_at_least_one_matched_line(const matched_line* m_l
 int is_last(const matched_line* ml) { return ml->line_number == -1; }
 
 const char* get_next_file_name(const char* file_name, const matched_line* m_lines) {
-	if (!file_name) return m_lines[0].file_name;
+    if (!file_name) return m_lines[0].file_name;
 
-	size_t idx = find_idx_of_last_matched_line_with_file_name(file_name, m_lines);
-	return m_lines[idx + 1].file_name;
+    // TODO: check for (size_t) -1;
+    size_t idx = find_idx_of_last_matched_line_with_file_name(file_name, m_lines);
+    return m_lines[idx + 1].file_name;
+}
+
+size_t find_idx_of_last_matched_line_with_file_name(const char* file_name, const matched_line* m_lines) {
+    if (!file_name) return NULL;
+
+    // TODO: check for (size_t) -1;
+    size_t first_idx = find_idx_of_first_matched_line_with_file_name(file_name, m_lines);
+    size_t i = first_idx;
+    while (!is_last(&m_lines[i]) && !strcmp(m_lines[first_idx].file_name, m_lines[i + 1].file_name)) ++i;
+
+    return is_last(&m_lines[i]) ? (size_t)-1 : i;
 }
