@@ -91,3 +91,12 @@ size_t find_idx_of_first_matched_line_with_file_name(const char* file_name, cons
 
     return is_last(&m_lines[idx]) ? __SIZE_MAX__ : idx;
 }
+
+size_t get_matched_lines_count_on_file(const char* file_name, const matched_line* m_lines) {
+    if (!file_name || !m_lines) return __SIZE_MAX__;
+
+    size_t first_idx = find_idx_of_first_matched_line_with_file_name(file_name, m_lines);
+    size_t last_idx = find_idx_of_last_matched_line_with_file_name(file_name, m_lines);
+
+    return first_idx == __SIZE_MAX__ ? __SIZE_MAX__ : last_idx - first_idx + 1;
+}
