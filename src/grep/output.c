@@ -30,3 +30,8 @@ void output(const matched_line* m_lines, const cmd_args_data* cmd) {
         }
     }
 }
+
+void print_file_names_with_at_least_one_matched_line(const matched_line* m_lines) {
+    const char* fn = NULL;
+    while ((fn = get_next_file_name(fn, m_lines)) != NULL) printf("%s\n", fn);
+}
