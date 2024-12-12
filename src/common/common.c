@@ -48,3 +48,8 @@ void try_append_str(char** str, const char* src) {
         *str = try_allocate_memory("grep", strlen(src) + 1);
     strcat(*str, src);
 }
+
+void substr(char* sub, const char* str, size_t start, size_t len) {
+    memcpy(sub, &str[start], len);
+    sub[len] = '\0';
+}
