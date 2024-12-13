@@ -95,7 +95,7 @@ void set_all_matches_from_line(matched_line** m_lines, regex_t* regex, char* str
                                const char* file_name, size_t line_number) {
     int state = 0;
     while (state == 0) {
-        state = regexec(regex, str, 1, rm, REG_NOTBOL);
+        state = regexec(regex, str, 1, rm, 0);
         if (state == 0 && *str) {
             matched_line ml = {NULL, line_number, NULL};
             try_append_str(&ml.file_name, file_name);
