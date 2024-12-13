@@ -10,6 +10,8 @@ typedef struct {
     char* line;
 } matched_line;
 
+void init_matched_line(matched_line* ml);
+
 void free_matched_lines(matched_line* m_lines);
 void free_matched_line(matched_line* m_line);
 

@@ -5,6 +5,12 @@
 
 #include "../common/common.h"
 
+void init_matched_line(matched_line* ml) {
+    ml->file_name = NULL;
+    ml->line_number = 0;
+    ml->line = NULL;
+}
+
 void free_matched_lines(matched_line* m_lines) {
     if (!m_lines) return;
 
@@ -26,6 +32,8 @@ void try_append_matched_line(matched_line** m_lines, const matched_line* src_m_l
     if (*m_lines) {
         size_t n = get_matched_lines_count(*m_lines);
         *m_lines = try_reallocate_memory("grep", *m_lines, sizeof(matched_line) * (n + 2));
+        init_matched_line(*m_lines + n);
+        init_matched_line(*m_lines + n + 1);
         copy_matched_line(*m_lines + n, src_m_line);
         copy_matched_line(*m_lines + n + 1,
                           &(matched_line){.file_name = NULL, .line = NULL, .line_number = -1});

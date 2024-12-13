@@ -71,7 +71,7 @@ matched_line* get_reg_exec_results_as_matched_lines(const cmd_args_data* cmd) {
                         matched_line ml = {NULL, line_num, NULL};
                         try_append_str(&ml.file_name, cmd->search_files[i]);
 
-                        buf[strlen(buf) - 1] = '\0'; // Remove \n.
+                        buf[strlen(buf) - 1] = '\0';  // Remove \n.
                         try_append_str(&ml.line, buf);
 
                         try_append_matched_line(&matched_lines, &ml);
