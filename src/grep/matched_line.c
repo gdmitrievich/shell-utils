@@ -105,6 +105,15 @@ size_t get_matched_lines_count_on_file(const char* file_name, const matched_line
 
     size_t first_idx = find_idx_of_first_matched_line_with_file_name(file_name, m_lines);
     size_t last_idx = find_idx_of_last_matched_line_with_file_name(file_name, m_lines);
+    size_t n = 1;
+    if (first_idx != __SIZE_MAX__) {
+        for (size_t compared = first_idx, i = first_idx + 1; i <= last_idx; ++i) {
+            if (m_lines[compared].line_number != m_lines[i].line_number) {
+                compared = i;
+                ++n;
+            }
+        }
+    }
 
-    return first_idx == __SIZE_MAX__ ? __SIZE_MAX__ : last_idx - first_idx + 1;
+    return first_idx == __SIZE_MAX__ ? __SIZE_MAX__ : n;
 }
