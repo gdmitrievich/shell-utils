@@ -12,7 +12,7 @@ void output(const matched_line* m_lines, const cmd_args_data* cmd) {
     } else if (n_files > 0) {
         if (f->c) {
             for (size_t i = 0; cmd->search_files[i] != NULL; ++i) {
-                printf("%s:", cmd->search_files[i]);
+                if (!f->h) printf("%s:", cmd->search_files[i]);
                 size_t n = get_matched_lines_count_on_file(cmd->search_files[i], m_lines);
                 if (n != __SIZE_MAX__)
                     printf("%ld\n", n);
