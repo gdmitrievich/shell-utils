@@ -17,7 +17,6 @@ SRCS += $(COMMON_DIR)/common.c
 OBJS = $(SRCS:%.c=%.o)
 
 # TARGETS
-all: tools
 all: $(TARGET)
 .PHONY: all
 
