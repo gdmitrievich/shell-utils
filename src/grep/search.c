@@ -59,6 +59,7 @@ matched_line* get_reg_exec_results_as_matched_lines(const cmd_args_data* cmd) {
         char buf[BUFFSIZE] = {0};
         size_t line_num = 1;
         while (fgets(buf, BUFFSIZE, fp)) {
+            if (has_new_line_char_at_the_end(buf)) buf[strlen(buf) - 1] = '\0';
             regmatch_t rm[1];
             int state = regexec(&regex, buf, 1, rm, 0);
             if ((state == 0 && !cmd->flags.v) || (state == REG_NOMATCH && cmd->flags.v)) {
@@ -67,11 +68,10 @@ matched_line* get_reg_exec_results_as_matched_lines(const cmd_args_data* cmd) {
                                               line_num);
                 } else {
                     int state = regexec(&regex, buf, 1, rm, 0);
-                    if (state == 0) {
+                    if ((state == 0 && !cmd->flags.v) || (state == REG_NOMATCH && cmd->flags.v)) {
                         matched_line ml = {NULL, line_num, NULL};
                         try_append_str(&ml.file_name, cmd->search_files[i]);
 
-                        if (has_new_line_char_at_the_end(buf)) buf[strlen(buf) - 1] = '\0';
                         try_append_str(&ml.line, buf);
 
                         try_append_matched_line(&matched_lines, &ml);
