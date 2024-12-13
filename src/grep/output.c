@@ -11,10 +11,13 @@ void output(const matched_line* m_lines, const cmd_args_data* cmd) {
         print_file_names_with_at_least_one_matched_line(m_lines);
     } else if (n_files > 0) {
         if (f->c) {
-            const char* file = NULL;
-            while ((file = get_next_file_name(file, m_lines)) != NULL) {
-                printf("%s:", file);
-                printf("%ld\n", get_matched_lines_count_on_file(file, m_lines));
+            for (size_t i = 0; cmd->search_files[i] != NULL; ++i) {
+                printf("%s:", cmd->search_files[i]);
+                size_t n = get_matched_lines_count_on_file(cmd->search_files[i], m_lines);
+                if (n != __SIZE_MAX__)
+                    printf("%ld\n", n);
+                else
+                    printf("0\n");
             }
         } else {
             size_t n_lines = get_matched_lines_count(m_lines);
