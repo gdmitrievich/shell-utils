@@ -1,11 +1,13 @@
 #!/bin/bash
 DATASETS_DIR=./datasets
 
-# flags=( i v c l n h s o )
-flags=( i )
+flags=( i v c l n h s o )
 templates=( '[a-z]' '[0-9]' '^[#]' 'int' ';$' )
 test_files="${DATASETS_DIR}/1.txt ${DATASETS_DIR}/2.txt ${DATASETS_DIR}/3.txt"
 template_file="file_with_templates.txt"
+
+succeed=0
+failed=0
 
 BINARY_DIR=..
 BINARY=${BINARY_DIR}/s21_grep
@@ -34,10 +36,13 @@ function run_test() {
 
 	if cmp -s 1.txt 2.txt ; then
 		echo "Success"
+		((succeed++))
 	else
 		echo "Fail"
 		echo "cmd line:" "${BINARY}" "-$flags" "${template_flag}" "${template_arg}" "${files[@]}"
-		exit
+		diff 1.txt 2.txt
+		rm 1.txt 2.txt
+		((failed++))
 	fi
 
 	rm 1.txt 2.txt
@@ -50,17 +55,11 @@ for flag in ${flags[@]}
 do
 	for template in ${templates[@]}
 	do
-		echo ""
-		echo "Tests with -$flag and -e:"
-
-		run_test "Test $test_number: " "$flag" "-e" "$template" "$test_files"
+		run_test "Test $test_number (-$flag and -e): " "$flag" "-e" "$template" "$test_files"
 		((test_number++))
 	done
 
-	echo ""
-	echo "Tests with -$flag and -f:"
-
-	run_test "Test $test_number: " "$flag" "-f" "$template_file" "$test_files"
+	run_test "Test $test_number (-$flag and -f): " "$flag" "-f" "$template_file" "$test_files"
 	((test_number++))
 done
 
@@ -76,17 +75,15 @@ do
 
 		for template in ${templates[@]}
 		do
-			echo ""
-			echo "Tests with -${flag1}${flag2} and -e:"
-
-			run_test "Test $test_number: " "${flag1}${flag2}" "-e" "$template" "$test_files"
+			run_test "Test $test_number (-${flag1}${flag2} and -e): " "${flag1}${flag2}" "-e" "$template" "$test_files"
 			((test_number++))
 		done
 
-		echo ""
-		echo "Tests with -${flag1}${flag2} and -f:"
-
-		run_test "Test $test_number: " "${flag1}${flag2}" "-f" "$template_file" "$test_files"
+		run_test "Test $test_number (-${flag1}${flag2} and -f): " "${flag1}${flag2}" "-f" "$template_file" "$test_files"
 		((test_number++))
 	done
 done
+
+echo ""
+echo "Succeed: $succeed"
+echo "Failed: $failed"
