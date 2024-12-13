@@ -6,8 +6,6 @@
 #include "flags.h"
 
 void process_flags(flags flags, int first_filepath_idx, int argc, char** argv);
-int has_new_line_char_at_the_end(const char* line);
-int is_new_line_char(char ch);
 int fpeek(FILE* f);
 FILE* read_line_in_new_file(char* line, int* i, int argc, char** argv);
 
