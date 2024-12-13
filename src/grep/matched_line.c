@@ -86,9 +86,10 @@ size_t find_idx_of_last_matched_line_with_file_name(const char* file_name, const
     size_t first_idx = find_idx_of_first_matched_line_with_file_name(file_name, m_lines);
     size_t i = first_idx;
     if (first_idx != __SIZE_MAX__)
-        while (!is_last(&m_lines[i]) && !strcmp(m_lines[first_idx].file_name, m_lines[i + 1].file_name)) ++i;
+        while (!is_last(&m_lines[i + 1]) && !strcmp(m_lines[first_idx].file_name, m_lines[i + 1].file_name))
+            ++i;
 
-    return first_idx == __SIZE_MAX__ || is_last(&m_lines[i]) ? __SIZE_MAX__ : i;
+    return first_idx == __SIZE_MAX__ || is_last(&m_lines[i + 1]) ? __SIZE_MAX__ : i;
 }
 
 size_t find_idx_of_first_matched_line_with_file_name(const char* file_name, const matched_line* m_lines) {
