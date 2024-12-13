@@ -20,18 +20,20 @@ void output(const matched_line* m_lines, const cmd_args_data* cmd) {
             size_t n_lines = get_matched_lines_count(m_lines);
             for (size_t i = 0; i < n_lines; ++i) {
                 if (n_files > 1 && !f->h) {
-                    printf("%s:", m_lines[0].file_name);
+                    printf("%s:", m_lines[i].file_name);
                 }
                 if (f->n) {
-                    printf("%d:", m_lines[0].line_number);
+                    printf("%d:", m_lines[i].line_number);
                 }
-                printf("%s\n", m_lines[0].line);
+                printf("%s\n", m_lines[i].line);
             }
         }
     }
 }
 
 void print_file_names_with_at_least_one_matched_line(const matched_line* m_lines) {
+    if (!m_lines) return;
+
     const char* fn = NULL;
     while ((fn = get_next_file_name(fn, m_lines)) != NULL) printf("%s\n", fn);
 }
