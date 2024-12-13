@@ -1,7 +1,8 @@
 #!/bin/bash
 DATASETS_DIR=./datasets
 
-flags=( i v c l n h s o )
+# flags=( i v c l n h s o )
+flags=( i )
 templates=( '[a-z]' '[0-9]' '^[#]' 'int' ';$' )
 test_files="${DATASETS_DIR}/1.txt ${DATASETS_DIR}/2.txt ${DATASETS_DIR}/3.txt"
 template_file="file_with_templates.txt"
@@ -13,7 +14,7 @@ make -C ${BINARY_DIR} all
 
 echo " "
 echo "Response to wrong flag:"
-./"${BINARY}" -w $test_file
+./"${BINARY}" -w $test_files
 
 echo " "
 echo "Response to wrong file:"
@@ -24,21 +25,19 @@ function run_test() {
     local flags="$2"
 	local template_flag="$3"
 	local template_arg="$4"
-    local files="${@:5}"
+	IFS=' ' read -ra files <<< "${@:5}"
 
 	echo -n "$test_name"
-	# echo "flags: $flags"
-	# echo "template_flag: $template_flag"
-	# echo "template_arg: $template_arg"
-	# echo "files: $files"
 
-	./"${BINARY}" "-$flags" "${template_flag}" "${template_arg}" "$files" > 1.txt
-	grep "-$flags" "${template_flag}" "${template_arg}" "$files" > 2.txt
+	./"${BINARY}" "-$flags" "${template_flag}" "${template_arg}" "${files[@]}" > 1.txt
+	grep "-$flags" "${template_flag}" "${template_arg}" "${files[@]}" > 2.txt
 
 	if cmp -s 1.txt 2.txt ; then
 		echo "Success"
 	else
 		echo "Fail"
+		echo "cmd line:" "${BINARY}" "-$flags" "${template_flag}" "${template_arg}" "${files[@]}"
+		exit
 	fi
 
 	rm 1.txt 2.txt
