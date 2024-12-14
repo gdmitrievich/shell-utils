@@ -1,20 +1,20 @@
-Тестируем
+Testing
 
 
-Флаг
+Flag
 
 
 -n
 
-Хотя по факту для него не было смысла
+Although in fact it made no sense to him
 
-писать отдельный тестовый
-
-
-
-файл =)
+write a separate test
 
 
-Но я решил написать, чтобы
 
-потестить флаг -s
+file =)
+
+
+But I decided to write so that
+
+test the -s
