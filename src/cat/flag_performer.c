@@ -11,25 +11,26 @@ void process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
     int i = first_filepath_idx;
     while (i < argc) {
         FILE* f = fopen(argv[i], "r");
-        print_error_if_cant_open_file("cat", argv[i], f);
-
-        char* state = NULL;
-        while ((state = fgets(line, sizeof(line), f))) {
-            if (!has_new_line_char_at_the_end(line) && fpeek(f) == EOF && i + 1 < argc) {
-                fclose(f);
-                f = NULL;
-                ++i;
-                f = read_line_in_new_file(line, &i, argc, argv);
-                if (!f) break;
+        if (f) {
+            char* read = NULL;
+            while ((read = fgets(line, sizeof(line), f))) {
+                if (!has_new_line_char_at_the_end(line) && fpeek(f) == EOF && i + 1 < argc) {
+                    fclose(f);
+                    f = NULL;
+                    ++i;
+                    f = read_line_in_new_file(line, &i, argc, argv);
+                    if (!f) break;
+                }
+                process_flags_on_line(flags, line);
             }
-            process_flags_on_line(flags, line);
-        }
 
-        fclose(f);
+        	fclose(f);
+        } else {
+            print_error("cat", argv[i]);
+        }
         ++i;
     }
 }
-
 
 int fpeek(FILE* f) {
     if (!f) return -1;
