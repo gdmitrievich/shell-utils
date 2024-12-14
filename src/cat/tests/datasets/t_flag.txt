@@ -1,6 +1,6 @@
-		Тестируем флаг
-				-t
-Табы		тут тоже
+Testing the flag
+            -t
+Tabs        are here too   
+        
 
-
-и	тут     тоже
+and here too
