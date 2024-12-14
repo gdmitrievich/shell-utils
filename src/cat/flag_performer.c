@@ -24,7 +24,7 @@ void process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
                 process_flags_on_line(flags, line);
             }
 
-        	fclose(f);
+            fclose(f);
         } else {
             print_error("cat", argv[i]);
         }
@@ -41,18 +41,21 @@ int fpeek(FILE* f) {
 
 FILE* read_line_in_new_file(char* line, int* i, int argc, char** argv) {
     FILE* f = fopen(argv[*i], "r");
-    print_error_if_cant_open_file("cat", argv[*i], f);
+    if (f) {
+        char l[1024] = {0};
+        if (fgets(l, sizeof(l), f)) {
+            strcat(line, l);
 
-    char l[1024] = {0};
-    if (fgets(l, sizeof(l), f)) {
-        strcat(line, l);
-
-        if (!has_new_line_char_at_the_end(line) && fpeek(f) == EOF && *i + 1 < argc) {
-            fclose(f);
-            f = NULL;
-            ++*i;
-            f = read_line_in_new_file(line, i, argc, argv);
+            if (!has_new_line_char_at_the_end(line) && fpeek(f) == EOF && *i + 1 < argc) {
+                fclose(f);
+                f = NULL;
+                ++*i;
+                f = read_line_in_new_file(line, i, argc, argv);
+            }
         }
+    } else {
+        print_error("cat", argv[*i]);
+		f = NULL;
     }
 
     return f;
