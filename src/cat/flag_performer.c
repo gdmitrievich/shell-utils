@@ -4,8 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../common/common.h"
-
 void process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
     char line[1024] = {0};
     int i = first_filepath_idx;
@@ -55,7 +53,7 @@ FILE* read_line_in_new_file(char* line, int* i, int argc, char** argv) {
         }
     } else {
         print_error("cat", argv[*i]);
-		f = NULL;
+        f = NULL;
     }
 
     return f;
@@ -135,32 +133,40 @@ void process_T_flag_on_line(const char* line) {
 
 int is_tab(char ch) { return ch == '\t'; }
 
-void process_v_flag_on_line(char* line) {
-    if (!line) return;
+bool process_v_flag_on_line(char* line) {
+    if (!line) return false;
 
-    char* new_line = (char*)try_allocate_memory("cat", strlen(line) * 4 + 1);
+	bool has_error = false;
+    char* ptr = (char*)allocate_with_memset(strlen(line) * 4 + 1);
+    if (ptr) {
+        char* new_line = ptr;
+        size_t l = strlen(line);
+        for (size_t i = 0; i < l; ++i) {
+            unsigned char c = line[i];
+            if (is_new_line_char(c) || is_tab(c))
+                strcat_formated_char_as_str(new_line, "%c", c);
+            else if (c == 127)
+                strcat_formated_char_as_str(new_line, "^%c", c - 64);
+            else if (c < 32)
+                strcat_formated_char_as_str(new_line, "^%c", c + 64);
+            else if (c < 128)
+                strcat_formated_char_as_str(new_line, "%c", c);
+            else if (c < 160)
+                strcat_formated_char_as_str(new_line, "M-^%c", c - 64);
+            else if (c < 255)
+                strcat_formated_char_as_str(new_line, "M-%c", c - 128);
+            else
+                strcat_formated_char_as_str(new_line, "M-%c", c - 192);
+        }
 
-    size_t l = strlen(line);
-    for (size_t i = 0; i < l; ++i) {
-        unsigned char c = line[i];
-        if (is_new_line_char(c) || is_tab(c))
-            strcat_formated_char_as_str(new_line, "%c", c);
-        else if (c == 127)
-            strcat_formated_char_as_str(new_line, "^%c", c - 64);
-        else if (c < 32)
-            strcat_formated_char_as_str(new_line, "^%c", c + 64);
-        else if (c < 128)
-            strcat_formated_char_as_str(new_line, "%c", c);
-        else if (c < 160)
-            strcat_formated_char_as_str(new_line, "M-^%c", c - 64);
-        else if (c < 255)
-            strcat_formated_char_as_str(new_line, "M-%c", c - 128);
-        else
-            strcat_formated_char_as_str(new_line, "M-%c", c - 192);
+        strncpy(line, new_line, strlen(new_line) + 1);
+        free(new_line);
+    } else {
+        print_error("cat", NULL);
+		has_error = true;
     }
 
-    strncpy(line, new_line, strlen(new_line) + 1);
-    free(new_line);
+	return has_error;
 }
 
 void strcat_formated_char_as_str(char* dest, const char* format, unsigned char ch) {
