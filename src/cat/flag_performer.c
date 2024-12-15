@@ -4,14 +4,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-void process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
+bool process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
     char line[1024] = {0};
     int i = first_filepath_idx;
-    while (i < argc) {
+	bool status = true;
+    while (status && i < argc) {
         FILE* f = fopen(argv[i], "r");
         if (f) {
-            char* read = NULL;
-            while ((read = fgets(line, sizeof(line), f))) {
+            while (status && (fgets(line, sizeof(line), f))) {
                 if (!has_new_line_char_at_the_end(line) && fpeek(f) == EOF && i + 1 < argc) {
                     fclose(f);
                     f = NULL;
@@ -19,7 +19,7 @@ void process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
                     f = read_line_in_new_file(line, &i, argc, argv);
                     if (!f) break;
                 }
-                process_flags_on_line(flags, line);
+                status = process_flags_on_line(flags, line);
             }
 
             fclose(f);
@@ -28,6 +28,8 @@ void process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
         }
         ++i;
     }
+
+	return status;
 }
 
 int fpeek(FILE* f) {
@@ -59,15 +61,20 @@ FILE* read_line_in_new_file(char* line, int* i, int argc, char** argv) {
     return f;
 }
 
-void process_flags_on_line(flags flags, char* line) {
-    if (!line) return;
+bool process_flags_on_line(flags flags, char* line) {
+    if (!line) return false;
 
-    if (flags.v) process_v_flag_on_line(line);
-    if (flags.b) process_b_flag_on_line(line);
-    if (flags.E) process_E_flag_on_line(line);
-    if (flags.n) process_n_flag_on_line(line);
-    if (flags.s) process_s_flag_on_line(line);
-    if (flags.T) process_T_flag_on_line(line);
+    bool status = true;
+    if (flags.v) status = process_v_flag_on_line(line);
+    if (status) {
+        if (flags.b) process_b_flag_on_line(line);
+        if (flags.E) process_E_flag_on_line(line);
+        if (flags.n) process_n_flag_on_line(line);
+        if (flags.s) process_s_flag_on_line(line);
+        if (flags.T) process_T_flag_on_line(line);
+    }
+
+	return status;
 }
 
 void process_b_flag_on_line(const char* line) {
@@ -136,7 +143,7 @@ int is_tab(char ch) { return ch == '\t'; }
 bool process_v_flag_on_line(char* line) {
     if (!line) return false;
 
-	bool has_error = false;
+    bool has_error = false;
     char* ptr = (char*)allocate_with_memset(strlen(line) * 4 + 1);
     if (ptr) {
         char* new_line = ptr;
@@ -163,10 +170,10 @@ bool process_v_flag_on_line(char* line) {
         free(new_line);
     } else {
         print_error("cat", NULL);
-		has_error = true;
+        has_error = true;
     }
 
-	return has_error;
+    return !has_error;
 }
 
 void strcat_formated_char_as_str(char* dest, const char* format, unsigned char ch) {

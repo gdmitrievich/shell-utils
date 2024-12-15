@@ -17,7 +17,7 @@ bool set_cmd_arg_flags(flags* f, int argc, char** argv) {
                              {"squeeze-blank", no_argument, NULL, 's'},
                              {0, 0, 0, 0}};
 
-	bool has_error = false;
+    bool has_error = false;
     int flag = 0;
     int longind = 0;
     init_flags(f);
@@ -49,7 +49,7 @@ bool set_cmd_arg_flags(flags* f, int argc, char** argv) {
             case '?':
             default:
                 print_error("cat", "Invalid option");
-				has_error = true;
+                has_error = true;
                 break;
         }
     }
@@ -60,13 +60,12 @@ bool set_cmd_arg_flags(flags* f, int argc, char** argv) {
 bool set_idx_of_first_filepath(int* idx, int argc, char** argv) {
     while (getopt(argc, argv, "beEnstT") != -1) {
     }
-	bool has_error = false;
-    if (argc == 1 || optind == argc)
-	{
-		print_error("cat", "You should specify at least one file");
-		has_error = true;
-	} else {
-		*idx = optind;
-	}
+    bool has_error = false;
+    if (argc == 1 || optind == argc) {
+        print_error("cat", "You should specify at least one file");
+        has_error = true;
+    } else {
+        *idx = optind;
+    }
     return !has_error;
 }
