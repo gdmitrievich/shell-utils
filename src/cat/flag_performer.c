@@ -4,32 +4,27 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../common/common.h"
-
 void process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
     char line[1024] = {0};
     int i = first_filepath_idx;
+	int current_filepath_idx = i;
     while (i < argc) {
         FILE* f = fopen(argv[i], "r");
-        print_error_if_cant_open_file("cat", argv[i], f);
-
-        char* state = NULL;
-        while ((state = fgets(line, sizeof(line), f))) {
-            if (!has_new_line_char_at_the_end(line) && fpeek(f) == EOF && i + 1 < argc) {
-                fclose(f);
-                f = NULL;
-                ++i;
-                f = read_line_in_new_file(line, &i, argc, argv);
-                if (!f) break;
+        if (f) {
+            char* read = NULL;
+            while ((read = fgets(line, sizeof(line), f))) {
+				bool is_new_file = current_filepath_idx != i;
+                process_flags_on_line(flags, line, is_new_file);
+				current_filepath_idx = i;
             }
-            process_flags_on_line(flags, line);
-        }
 
-        fclose(f);
+            fclose(f);
+        } else {
+            print_error("cat", argv[i]);
+        }
         ++i;
     }
 }
-
 
 int fpeek(FILE* f) {
     if (!f) return -1;
@@ -40,39 +35,45 @@ int fpeek(FILE* f) {
 
 FILE* read_line_in_new_file(char* line, int* i, int argc, char** argv) {
     FILE* f = fopen(argv[*i], "r");
-    print_error_if_cant_open_file("cat", argv[*i], f);
+    if (f) {
+        char l[1024] = {0};
+        if (fgets(l, sizeof(l), f)) {
+            strcat(line, l);
 
-    char l[1024] = {0};
-    if (fgets(l, sizeof(l), f)) {
-        strcat(line, l);
-
-        if (!has_new_line_char_at_the_end(line) && fpeek(f) == EOF && *i + 1 < argc) {
-            fclose(f);
-            f = NULL;
-            ++*i;
-            f = read_line_in_new_file(line, i, argc, argv);
+            if (!has_new_line_char_at_the_end(line) && fpeek(f) == EOF && *i + 1 < argc) {
+                fclose(f);
+                f = NULL;
+                ++*i;
+                f = read_line_in_new_file(line, i, argc, argv);
+            }
         }
+    } else {
+        print_error("cat", argv[*i]);
+        f = NULL;
     }
 
     return f;
 }
 
-void process_flags_on_line(flags flags, char* line) {
+void process_flags_on_line(flags flags, char* line, bool is_new_file) {
     if (!line) return;
 
-    if (flags.v) process_v_flag_on_line(line);
-    if (flags.b) process_b_flag_on_line(line);
-    if (flags.E) process_E_flag_on_line(line);
-    if (flags.n) process_n_flag_on_line(line);
-    if (flags.s) process_s_flag_on_line(line);
-    if (flags.T) process_T_flag_on_line(line);
+    bool has_error = false;
+    if (flags.v) has_error = process_v_flag_on_line(line);
+    if (!has_error) {
+        if (flags.b) process_b_flag_on_line(line, is_new_file);
+        if (flags.E) process_E_flag_on_line(line);
+        if (flags.n) process_n_flag_on_line(line, is_new_file);
+        if (flags.s) process_s_flag_on_line(line);
+        if (flags.T) process_T_flag_on_line(line);
+    }
 }
 
-void process_b_flag_on_line(const char* line) {
+void process_b_flag_on_line(const char* line, bool is_new_file) {
     if (!line) return;
 
     if (!is_fully_empty_line(line))
-        process_n_flag_on_line(line);
+        process_n_flag_on_line(line, is_new_file);
     else
         printf("%s", line);
 }
@@ -97,10 +98,11 @@ void print_chars_until_new_line_char(const char* line) {
     for (size_t i = 0; i < l && !is_new_line_char(line[i]); ++i) printf("%c", line[i]);
 }
 
-void process_n_flag_on_line(const char* line) {
+void process_n_flag_on_line(const char* line, bool is_new_file) {
     if (!line) return;
 
     static int nLine = 1;
+	if (is_new_file) nLine = 1;
     printf("%6d\t%s", nLine++, line);
 }
 
@@ -131,32 +133,40 @@ void process_T_flag_on_line(const char* line) {
 
 int is_tab(char ch) { return ch == '\t'; }
 
-void process_v_flag_on_line(char* line) {
-    if (!line) return;
+bool process_v_flag_on_line(char* line) {
+    if (!line) return false;
 
-    char* new_line = (char*)try_allocate_memory("cat", strlen(line) * 4 + 1);
+    bool has_error = false;
+    char* ptr = (char*)allocate_with_memset(strlen(line) * 4 + 1);
+    if (ptr) {
+        char* new_line = ptr;
+        size_t l = strlen(line);
+        for (size_t i = 0; i < l; ++i) {
+            unsigned char c = line[i];
+            if (is_new_line_char(c) || is_tab(c))
+                strcat_formated_char_as_str(new_line, "%c", c);
+            else if (c == 127)
+                strcat_formated_char_as_str(new_line, "^%c", c - 64);
+            else if (c < 32)
+                strcat_formated_char_as_str(new_line, "^%c", c + 64);
+            else if (c < 128)
+                strcat_formated_char_as_str(new_line, "%c", c);
+            else if (c < 160)
+                strcat_formated_char_as_str(new_line, "M-^%c", c - 64);
+            else if (c < 255)
+                strcat_formated_char_as_str(new_line, "M-%c", c - 128);
+            else
+                strcat_formated_char_as_str(new_line, "M-%c", c - 192);
+        }
 
-    size_t l = strlen(line);
-    for (size_t i = 0; i < l; ++i) {
-        unsigned char c = line[i];
-        if (is_new_line_char(c) || is_tab(c))
-            strcat_formated_char_as_str(new_line, "%c", c);
-        else if (c == 127)
-            strcat_formated_char_as_str(new_line, "^%c", c - 64);
-        else if (c < 32)
-            strcat_formated_char_as_str(new_line, "^%c", c + 64);
-        else if (c < 128)
-            strcat_formated_char_as_str(new_line, "%c", c);
-        else if (c < 160)
-            strcat_formated_char_as_str(new_line, "M-^%c", c - 64);
-        else if (c < 255)
-            strcat_formated_char_as_str(new_line, "M-%c", c - 128);
-        else
-            strcat_formated_char_as_str(new_line, "M-%c", c - 192);
+        strncpy(line, new_line, strlen(new_line) + 1);
+        free(new_line);
+    } else {
+        print_error("cat", NULL);
+        has_error = true;
     }
 
-    strncpy(line, new_line, strlen(new_line) + 1);
-    free(new_line);
+    return has_error;
 }
 
 void strcat_formated_char_as_str(char* dest, const char* format, unsigned char ch) {

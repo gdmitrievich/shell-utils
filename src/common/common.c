@@ -14,38 +14,30 @@ void print_error(const char* utility_name, const char* message) {
         fprintf(stderr, "%s: %s: %s\n", utility_name, message, strerror(errno));
     else
         fprintf(stderr, "%s: %s\n", utility_name, message);
-    exit(EXIT_FAILURE);
 }
 
-void print_error_if_cant_open_file(const char* utility_name, const char* filename, const FILE* f) {
-    if (!f) print_error(utility_name, filename);
-}
-
-void* try_allocate_memory(const char* utility_name, size_t size) {
+void* allocate_with_memset(const char* utility_name, size_t size) {
     void* ptr = malloc(size);
-    if (!ptr) print_error(utility_name, NULL);
-
-    memset(ptr, 0, size);
+    if (ptr)
+		memset(ptr, 0, size);
     return ptr;
-}
-
-void* try_reallocate_memory(const char* utility_name, void* src, size_t size) {
-    void* new_ptr = realloc(src, size);
-    if (!new_ptr) print_error(utility_name, NULL);
-
-    return new_ptr;
 }
 
 int has_new_line_char_at_the_end(const char* line) { return is_new_line_char(line[strlen(line) - 1]); }
 int is_new_line_char(char ch) { return ch == '\n'; }
 
-void try_append_str(char** str, const char* src) {
+void set_or_append_str(char** str, const char* src) {
     if (!src) return;
 
-    if (*str)
-        *str = try_reallocate_memory("grep", *str, strlen(*str) + strlen(src) + 1);
-    else
-        *str = try_allocate_memory("grep", strlen(src) + 1);
+	char* ptr = NULL;
+    if (*str) {
+		ptr = realloc(*str, strlen(*str) + strlen(src) + 1);
+		if (ptr)
+        	*str = ptr;
+	}
+    else {
+        *str = allocate_with_memset("grep", strlen(src) + 1);
+	}
     strcat(*str, src);
 }
 
