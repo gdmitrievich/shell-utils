@@ -15,6 +15,7 @@ void init_cad(cmd_args_data* cad) {
 void free_cad(cmd_args_data cad) {
     free(cad.pattern);
     free(cad.pattern_file);
-    for (int i = 0; cad.search_files[i] != NULL; ++i) free(cad.search_files[i]);
+	if (cad.search_files)
+   		for (int i = 0; cad.search_files[i] != NULL; ++i) free(cad.search_files[i]);
     free(cad.search_files);
 }

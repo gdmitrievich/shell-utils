@@ -49,3 +49,51 @@ void substr(char* sub, const char* str, size_t start, size_t len) {
     memcpy(sub, &str[start], len);
     sub[len] = '\0';
 }
+
+char* fgetdyns(char** str_ptr, size_t* n, FILE* stream) {
+    *str_ptr = NULL;
+    *n = 0;
+    size_t capacity = 4;
+
+    int ch = 0;
+    bool state = true;
+	bool new_line_found = false;
+    if ((ch = fgetc(stream)) != EOF) {
+        ungetc(ch, stream);
+        *str_ptr = allocate_with_memset(capacity);
+        if (str_ptr) {
+            while (state && !new_line_found && (ch = fgetc(stream)) != EOF) {
+				state = add_char_to_str(ch, str_ptr, (*n)++, &capacity);
+                if (ch == '\n')
+					new_line_found = true;
+            }
+			if (state) {
+				state = add_char_to_str('\0', str_ptr, *n, &capacity);
+			}
+            if (state && ch == EOF) {
+                ungetc(ch, stream);
+                ch = 0;
+            }
+        } else {
+            state = false;
+        }
+    }
+
+    return state ? ch != EOF ? *str_ptr : NULL : NULL;
+}
+
+bool add_char_to_str(int ch, char** str_ptr, size_t pos, size_t* capacity) {
+    bool state = true;
+    if (pos + 1 >= *capacity) {
+        *capacity *= 2;
+        char* p = (char*) realloc(*str_ptr, *capacity);
+		if (p) {
+			*str_ptr = p;
+		} else {
+			state = false;
+		}
+    }
+	if (state)
+		(*str_ptr)[pos] = ch;
+    return state;
+}

@@ -5,21 +5,24 @@
 #include <string.h>
 
 bool process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
-    char line[1024] = {0};
     int i = first_filepath_idx;
     bool status = true;
     while (status && i < argc) {
         FILE* f = fopen(argv[i], "r");
         if (f) {
-            while (status && (fgets(line, sizeof(line), f))) {
+    		char* line = NULL;
+    		size_t line_len = 0;
+            while (status && (fgetdyns(&line, &line_len, f))) {
                 if (!has_new_line_char_at_the_end(line) && fpeek(f) == EOF && i + 1 < argc) {
                     fclose(f);
                     f = NULL;
                     ++i;
-                    f = read_line_in_new_file(line, &i, argc, argv);
+                    f = read_line_in_new_file(&line, &i, argc, argv);
                     if (!f) break;
                 }
                 status = process_flags_on_line(flags, line);
+				// free(line);
+				// line = NULL;
             }
 
             fclose(f);
@@ -39,26 +42,29 @@ int fpeek(FILE* f) {
     return ungetc(c, f);
 }
 
-FILE* read_line_in_new_file(char* line, int* i, int argc, char** argv) {
+FILE* read_line_in_new_file(char** line, int* i, int argc, char** argv) {
+    bool status = true;
     FILE* f = fopen(argv[*i], "r");
     if (f) {
-        char l[1024] = {0};
-        if (fgets(l, sizeof(l), f)) {
-            strcat(line, l);
+        char* l = NULL;
+        size_t line_len = 0;
+        if (fgetdyns(&l, &line_len, f)) {
+            if (!append_str(line, l)) status = false;
 
-            if (!has_new_line_char_at_the_end(line) && fpeek(f) == EOF && *i + 1 < argc) {
+            if (status && !has_new_line_char_at_the_end(*line) && fpeek(f) == EOF && *i + 1 < argc) {
                 fclose(f);
                 f = NULL;
                 ++*i;
                 f = read_line_in_new_file(line, i, argc, argv);
             }
         }
+		//free(l);
     } else {
         print_error("cat", argv[*i]);
         f = NULL;
     }
 
-    return f;
+    return status ? f : NULL;
 }
 
 bool process_flags_on_line(flags flags, char* line) {

@@ -21,17 +21,20 @@ bool set_retrieved_regexes_from_file(char** pattern_ptr, const char* pattern_fil
     FILE* fp = fopen(pattern_file, "r");
     bool status = true;
     if (fp) {
-        char buffer[BUFFSIZE] = {0};
-        while (status && fgets(buffer, BUFFSIZE, fp) != NULL) {
-            if (has_new_line_char_at_the_end(buffer)) buffer[strlen(buffer) - 1] = '\0';
+		char* line = NULL;
+		size_t line_len = 0;
+        while (status && fgetdyns(&line, &line_len, fp) != NULL) {
+            if (has_new_line_char_at_the_end(line)) line[strlen(line) - 1] = '\0';
 
             if (*pattern_ptr && !append_str(pattern_ptr, "|")) status = false;
 
-            if (status && *buffer == '\0') {
+            if (status && *line == '\0') {
                 if (!append_str(pattern_ptr, ".")) status = false;
             } else if (status) {
-                if (!append_str(pattern_ptr, buffer)) status = false;
+                if (!append_str(pattern_ptr, line)) status = false;
             }
+			// free(line);
+			// line = NULL;
         }
 
         fclose(fp);
@@ -65,23 +68,24 @@ bool set_reg_exec_results_as_matched_lines(matched_line** m_lines_ptr, const cmd
     for (int i = 0; status && cmd->search_files[i] != NULL; ++i) {
         FILE* fp = fopen(cmd->search_files[i], "r");
         if (fp) {
-            char buf[BUFFSIZE] = {0};
             size_t line_num = 1;
-            while (status && fgets(buf, BUFFSIZE, fp)) {
-                if (has_new_line_char_at_the_end(buf)) buf[strlen(buf) - 1] = '\0';
+			char* line = NULL;
+			size_t line_len = 0;
+            while (status && fgetdyns(&line, &line_len, fp)) {
+                if (has_new_line_char_at_the_end(line)) line[strlen(line) - 1] = '\0';
 
                 regmatch_t rm[1];
-                int reg_state = regexec(&regex, buf, 1, rm, 0);
+                int reg_state = regexec(&regex, line, 1, rm, 0);
                 if ((reg_state == 0 && !cmd->flags.v) || (reg_state == REG_NOMATCH && cmd->flags.v)) {
                     if (cmd->flags.o) {
-                        status = set_all_matches_from_line(m_lines_ptr, &regex, buf, rm, cmd->search_files[i],
+                        status = set_all_matches_from_line(m_lines_ptr, &regex, line, rm, cmd->search_files[i],
                                                            line_num);
                     } else {
-                        int reg_state = regexec(&regex, buf, 1, rm, 0);
+                        int reg_state = regexec(&regex, line, 1, rm, 0);
                         if ((reg_state == 0 && !cmd->flags.v) || (reg_state == REG_NOMATCH && cmd->flags.v)) {
                             matched_line ml = {NULL, line_num, NULL};
                             if (!append_str(&ml.file_name, cmd->search_files[i])) status = false;
-                            if (status && !append_str(&ml.line, buf)) status = false;
+                            if (status && !append_str(&ml.line, line)) status = false;
                             if (status) status = append_matched_line(m_lines_ptr, &ml);
                         } else {
                             // Error.
@@ -90,6 +94,8 @@ bool set_reg_exec_results_as_matched_lines(matched_line** m_lines_ptr, const cmd
                 }
 
                 ++line_num;
+				// free(line);
+				// line = NULL;
             }
 
             fclose(fp);
