@@ -38,7 +38,6 @@ function run_test() {
 		echo "Success"
 	else
 		echo "Fail"
-		diff 1.txt 2.txt
 	fi
 	rm 1.txt 2.txt
 }
