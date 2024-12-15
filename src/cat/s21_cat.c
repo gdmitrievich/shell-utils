@@ -2,8 +2,10 @@
 #include "flag_performer.h"
 
 int main(int argc, char** argv) {
-    flags f = get_cmd_arg_flags(argc, argv);
-    int f_idx = get_idx_of_first_filepath(argc, argv);
-    process_flags(f, f_idx, argc, argv);
+    flags f;
+	bool status = set_cmd_arg_flags(&f, argc, argv);
+    int f_idx = 0;
+	if (status) status = set_idx_of_first_filepath(&f_idx, argc, argv);
+    if (status) process_flags(f, f_idx, argc, argv);
     return 0;
 }
