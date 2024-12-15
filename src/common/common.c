@@ -25,7 +25,7 @@ void* allocate_with_memset(size_t size) {
 int has_new_line_char_at_the_end(const char* line) { return is_new_line_char(line[strlen(line) - 1]); }
 int is_new_line_char(char ch) { return ch == '\n'; }
 
-void append_str(char** str, const char* src) {
+bool append_str(char** str, const char* src) {
     if (!src) return;
 
     char* ptr = NULL;
@@ -33,10 +33,13 @@ void append_str(char** str, const char* src) {
         ptr = realloc(*str, strlen(*str) + strlen(src) + 1);
     else
         ptr = allocate_with_memset(strlen(src) + 1);
+	bool status = false;
     if (ptr) {
         *str = ptr;
         strcat(*str, src);
+		status = true;
     }
+	return status;
 }
 
 void substr(char* sub, const char* str, size_t start, size_t len) {
