@@ -25,12 +25,12 @@ bool set_retrieved_regexes_from_file(char** pattern_ptr, const char* pattern_fil
         while (status && fgets(buffer, BUFFSIZE, fp) != NULL) {
             if (has_new_line_char_at_the_end(buffer)) buffer[strlen(buffer) - 1] = '\0';
 
-            if (*pattern_ptr) status = append_str(pattern_ptr, "|");
+            if (*pattern_ptr && !append_str(pattern_ptr, "|")) status = false;
 
             if (status && *buffer == '\0') {
-                status = append_str(pattern_ptr, ".");
+                if (!append_str(pattern_ptr, ".")) status = false;
             } else if (status) {
-                status = append_str(pattern_ptr, buffer);
+                if (!append_str(pattern_ptr, buffer)) status = false;
             }
         }
 
@@ -80,8 +80,8 @@ bool set_reg_exec_results_as_matched_lines(matched_line** m_lines_ptr, const cmd
                         int reg_state = regexec(&regex, buf, 1, rm, 0);
                         if ((reg_state == 0 && !cmd->flags.v) || (reg_state == REG_NOMATCH && cmd->flags.v)) {
                             matched_line ml = {NULL, line_num, NULL};
-                            status = append_str(&ml.file_name, cmd->search_files[i]);
-                            if (status) status = append_str(&ml.line, buf);
+                            if (!append_str(&ml.file_name, cmd->search_files[i])) status = false;
+                            if (status && !append_str(&ml.line, buf)) status = false;
                             if (status) status = append_matched_line(m_lines_ptr, &ml);
                         } else {
                             // Error.
@@ -110,12 +110,12 @@ bool set_all_matches_from_line(matched_line** m_lines, regex_t* regex, char* str
         reg_state = regexec(regex, str, 1, rm, 0);
         if (reg_state == 0 && *str) {
             matched_line ml = {NULL, line_number, NULL};
-            status = append_str(&ml.file_name, file_name);
+            if (!append_str(&ml.file_name, file_name)) status = false;
 
             int len = rm[0].rm_eo - rm[0].rm_so;
             char line[len + 1];
             substr(line, str, rm[0].rm_so, len);
-            if (status) status = append_str(&ml.line, line);
+            if (status && !append_str(&ml.line, line)) status = false;
 
             if (status) status = append_matched_line(m_lines, &ml);
             if (status) str += rm[0].rm_eo;

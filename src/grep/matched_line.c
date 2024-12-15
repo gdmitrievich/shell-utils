@@ -47,6 +47,7 @@ bool append_matched_line(matched_line** m_lines, const matched_line* src_m_line)
     } else {
         matched_line* p = allocate_with_memset(sizeof(matched_line) * 2);
         if (p) {
+			*m_lines = p;
             status = copy_matched_line(*m_lines, src_m_line);
             if (status)
                 copy_matched_line(*m_lines + 1,
@@ -66,8 +67,9 @@ size_t get_matched_lines_count(const matched_line* m_lines) {
 }
 
 bool copy_matched_line(matched_line* dest, const matched_line* src) {
-    bool status = append_str(&dest->file_name, src->file_name);
-    if (status) status = append_str(&dest->line, src->line);
+	bool status = true;
+    if (!append_str(&dest->file_name, src->file_name)) status = false;
+    if (status && !append_str(&dest->line, src->line)) status = false;
     if (status) dest->line_number = src->line_number;
     return status;
 }

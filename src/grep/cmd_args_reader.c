@@ -29,7 +29,7 @@ bool set_retrieved_cmd_arg_data(cmd_args_data* cad, int argc, char** argv) {
         switch (flag) {
             case 'e':
                 cad->flags.e = 1;
-                status = append_str(&cad->pattern, optarg);
+                if (!append_str(&cad->pattern, optarg)) status = false;
                 break;
             case 'i':
                 cad->flags.i = 1;
@@ -54,7 +54,7 @@ bool set_retrieved_cmd_arg_data(cmd_args_data* cad, int argc, char** argv) {
                 break;
             case 'f':
                 cad->flags.f = 1;
-                status = append_str(&cad->pattern_file, optarg);
+               	if (!append_str(&cad->pattern_file, optarg)) status = false;
                 break;
             case 'o':
                 cad->flags.o = 1;
@@ -80,7 +80,7 @@ bool set_retrieved_cmd_arg_data(cmd_args_data* cad, int argc, char** argv) {
         if (ptr) {
             cad->search_files = ptr;
             for (int i = optind, j = 0; status && i < argc; ++i, ++j)
-                status = append_str(&(cad->search_files[j]), argv[i]);
+                if (!append_str(&(cad->search_files[j]), argv[i])) status = false;
             if (status) cad->search_files[n_files] = NULL;
         } else {
             status = false;
