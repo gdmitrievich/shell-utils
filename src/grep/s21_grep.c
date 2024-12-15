@@ -6,6 +6,8 @@
 #include "output.h"
 #include "search.h"
 
+#include <errno.h>
+
 int main(int argc, char** argv) {
     cmd_args_data cad;
 	init_cad(&cad);
@@ -18,5 +20,6 @@ int main(int argc, char** argv) {
 		free_matched_lines(m_lines);
 	}
     free_cad(cad);
+	if (!status && errno != 0) print_error("grep", NULL);
     return 0;
 }

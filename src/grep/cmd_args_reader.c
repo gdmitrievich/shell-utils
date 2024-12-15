@@ -30,7 +30,6 @@ bool set_retrieved_cmd_arg_data(cmd_args_data* cad, int argc, char** argv) {
             case 'e':
                 cad->flags.e = 1;
                 status = append_str(&cad->pattern, optarg);
-				if (!status) print_error("grep", NULL);
                 break;
             case 'i':
                 cad->flags.i = 1;
@@ -56,7 +55,6 @@ bool set_retrieved_cmd_arg_data(cmd_args_data* cad, int argc, char** argv) {
             case 'f':
                 cad->flags.f = 1;
                 status = append_str(&cad->pattern_file, optarg);
-				if (!status) print_error("grep", NULL);
                 break;
             case 'o':
                 cad->flags.o = 1;
@@ -87,7 +85,6 @@ bool set_retrieved_cmd_arg_data(cmd_args_data* cad, int argc, char** argv) {
 		} else {
 			status = false;
 		}
-		if (!status) print_error("grep", NULL);
     }
 
     return status;
