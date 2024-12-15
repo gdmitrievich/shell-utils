@@ -16,29 +16,27 @@ void print_error(const char* utility_name, const char* message) {
         fprintf(stderr, "%s: %s\n", utility_name, message);
 }
 
-void* allocate_with_memset(const char* utility_name, size_t size) {
+void* allocate_with_memset(size_t size) {
     void* ptr = malloc(size);
-    if (ptr)
-		memset(ptr, 0, size);
+    if (ptr) memset(ptr, 0, size);
     return ptr;
 }
 
 int has_new_line_char_at_the_end(const char* line) { return is_new_line_char(line[strlen(line) - 1]); }
 int is_new_line_char(char ch) { return ch == '\n'; }
 
-void set_or_append_str(char** str, const char* src) {
+void append_str(char** str, const char* src) {
     if (!src) return;
 
-	char* ptr = NULL;
-    if (*str) {
-		ptr = realloc(*str, strlen(*str) + strlen(src) + 1);
-		if (ptr)
-        	*str = ptr;
-	}
-    else {
-        *str = allocate_with_memset("grep", strlen(src) + 1);
-	}
-    strcat(*str, src);
+    char* ptr = NULL;
+    if (*str)
+        ptr = realloc(*str, strlen(*str) + strlen(src) + 1);
+    else
+        ptr = allocate_with_memset(strlen(src) + 1);
+    if (ptr) {
+        *str = ptr;
+        strcat(*str, src);
+    }
 }
 
 void substr(char* sub, const char* str, size_t start, size_t len) {
