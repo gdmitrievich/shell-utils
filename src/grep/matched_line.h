@@ -2,6 +2,7 @@
 #define MATCHED_LINE_H
 
 #include <stddef.h>
+
 #include "../common/common.h"
 
 // Last item in the sequence has -1 value at the 'line_number' field.

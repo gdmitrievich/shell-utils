@@ -76,15 +76,15 @@ bool set_retrieved_cmd_arg_data(cmd_args_data* cad, int argc, char** argv) {
         status = false;
     } else if (status) {
         int n_files = argc - optind + 1;
-		char** ptr = (char**)allocate_with_memset(sizeof(char*) * n_files + 1);
-		if (ptr) {
-			cad->search_files = ptr;
-			for (int i = optind, j = 0; status && i < argc; ++i, ++j)
-				status = append_str(&(cad->search_files[j]), argv[i]);
-			if (status) cad->search_files[n_files] = NULL;
-		} else {
-			status = false;
-		}
+        char** ptr = (char**)allocate_with_memset(sizeof(char*) * n_files + 1);
+        if (ptr) {
+            cad->search_files = ptr;
+            for (int i = optind, j = 0; status && i < argc; ++i, ++j)
+                status = append_str(&(cad->search_files[j]), argv[i]);
+            if (status) cad->search_files[n_files] = NULL;
+        } else {
+            status = false;
+        }
     }
 
     return status;

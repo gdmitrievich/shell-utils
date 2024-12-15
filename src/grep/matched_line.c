@@ -29,31 +29,34 @@ void free_matched_line(matched_line* m_line) {
 bool append_matched_line(matched_line** m_lines, const matched_line* src_m_line) {
     if (!src_m_line) return false;
 
-	bool status = true;
+    bool status = true;
     if (*m_lines) {
         size_t n = get_matched_lines_count(*m_lines);
-        matched_line* p = (matched_line*) realloc(*m_lines, sizeof(matched_line) * (n + 2));
-		if (p) {
-			*m_lines = p;
-			init_matched_line(*m_lines + n);
-			init_matched_line(*m_lines + n + 1);
-			status = copy_matched_line(*m_lines + n, src_m_line);
-			if (status) copy_matched_line(*m_lines + n + 1,
-							&(matched_line){.file_name = NULL, .line = NULL, .line_number = -1});
-		} else {
-			status = false;
-		}
+        matched_line* p = (matched_line*)realloc(*m_lines, sizeof(matched_line) * (n + 2));
+        if (p) {
+            *m_lines = p;
+            init_matched_line(*m_lines + n);
+            init_matched_line(*m_lines + n + 1);
+            status = copy_matched_line(*m_lines + n, src_m_line);
+            if (status)
+                copy_matched_line(*m_lines + n + 1,
+                                  &(matched_line){.file_name = NULL, .line = NULL, .line_number = -1});
+        } else {
+            status = false;
+        }
     } else {
         matched_line* p = allocate_with_memset(sizeof(matched_line) * 2);
-		if (p) {
-			status = copy_matched_line(*m_lines, src_m_line);
-			if (status) copy_matched_line(*m_lines + 1, &(matched_line){.file_name = NULL, .line = NULL, .line_number = -1});
-		} else {
-			status = false;
-		}
+        if (p) {
+            status = copy_matched_line(*m_lines, src_m_line);
+            if (status)
+                copy_matched_line(*m_lines + 1,
+                                  &(matched_line){.file_name = NULL, .line = NULL, .line_number = -1});
+        } else {
+            status = false;
+        }
     }
 
-	return status;
+    return status;
 }
 
 size_t get_matched_lines_count(const matched_line* m_lines) {
@@ -63,10 +66,10 @@ size_t get_matched_lines_count(const matched_line* m_lines) {
 }
 
 bool copy_matched_line(matched_line* dest, const matched_line* src) {
-	bool status = append_str(&dest->file_name, src->file_name);
+    bool status = append_str(&dest->file_name, src->file_name);
     if (status) status = append_str(&dest->line, src->line);
     if (status) dest->line_number = src->line_number;
-	return status;
+    return status;
 }
 
 size_t get_count_of_files_with_at_least_one_matched_line(const matched_line* m_lines) {
