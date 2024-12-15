@@ -8,10 +8,9 @@
 
 typedef struct option option;
 
-#include "../common/common.h"
 #include "cmd_args_data.h"
 
-cmd_args_data retrieve_cmd_arg_data(int argc, char** argv) {
+bool set_retrieved_cmd_arg_data(cmd_args_data* cad, int argc, char** argv) {
     option long_options[] = {{"regexp", required_argument, 0, 'e'},
                              {"ignore-case", no_argument, 0, 'i'},
                              {"invert-match", no_argument, 0, 'v'},
@@ -25,60 +24,71 @@ cmd_args_data retrieve_cmd_arg_data(int argc, char** argv) {
                              {0, 0, 0, 0}};
 
     int flag = 0;
-    cmd_args_data f;
-    init_cad(&f);
-    while ((flag = getopt_long(argc, argv, ":e:ivclnhsf:o", long_options, NULL)) != -1) {
+    bool status = true;
+    while (status && (flag = getopt_long(argc, argv, ":e:ivclnhsf:o", long_options, NULL)) != -1) {
         switch (flag) {
             case 'e':
-                f.flags.e = 1;
-                try_append_str(&f.pattern, optarg);
+                cad->flags.e = 1;
+                status = append_str(&cad->pattern, optarg);
+				if (!status) print_error("grep", NULL);
                 break;
             case 'i':
-                f.flags.i = 1;
+                cad->flags.i = 1;
                 break;
             case 'v':
-                f.flags.v = 1;
+                cad->flags.v = 1;
                 break;
             case 'c':
-                f.flags.c = 1;
+                cad->flags.c = 1;
                 break;
             case 'l':
-                f.flags.l = 1;
+                cad->flags.l = 1;
                 break;
             case 'n':
-                f.flags.n = 1;
+                cad->flags.n = 1;
                 break;
             case 'h':
-                f.flags.h = 1;
+                cad->flags.h = 1;
                 break;
             case 's':
-                f.flags.s = 1;
+                cad->flags.s = 1;
                 break;
             case 'f':
-                f.flags.f = 1;
-                try_append_str(&f.pattern_file, optarg);
+                cad->flags.f = 1;
+                status = append_str(&cad->pattern_file, optarg);
+				if (!status) print_error("grep", NULL);
                 break;
             case 'o':
-                f.flags.o = 1;
+                cad->flags.o = 1;
                 break;
             case ':':
                 print_error("grep", "You need to specify an argument");
+                status = false;
                 break;
             case '?':
             default:
                 print_error("grep", "Invalid option");
+                status = false;
                 break;
         }
     }
 
-    if (optind == argc) print_error("grep", "You should specify at least one file");
-
-    int n_files = argc - optind + 1;
-    f.search_files = (char**)try_allocate_memory("grep", sizeof(char*) * n_files + 1);
-    for (int i = optind, j = 0; i < argc; ++i, ++j) {
-        try_append_str(&(f.search_files[j]), argv[i]);
+    if (status && optind == argc) {
+        print_error("grep", "You should specify at least one file");
+        status = false;
+    } else if (status) {
+        int n_files = argc - optind + 1;
+		char** ptr = (char**)allocate_with_memset(sizeof(char*) * n_files + 1);
+		if (ptr) {
+			cad->search_files = ptr;
+			for (int i = optind, j = 0; status && i < argc; ++i, ++j)
+				status = append_str(&(cad->search_files[j]), argv[i]);
+			if (status) cad->search_files[n_files] = NULL;
+		} else {
+			status = false;
+		}
+		if (!status) print_error("grep", NULL);
     }
-    f.search_files[n_files] = NULL;
 
-    return f;
+    return status;
 }
