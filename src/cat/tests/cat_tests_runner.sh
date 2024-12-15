@@ -1,6 +1,14 @@
 #!/bin/bash
 
-flags=( -b -e -E -n -s -t -T )
+OS=$(uname)
+if [[ "$OS" == "Linux" ]]; then
+	flags=( -b -e -E -n -s -t -T )
+elif [[ "$OS" == "Darwin" ]]; then
+	flags=( -b -e -n -s -t )
+else
+	flags=( -b -e -E -n -s -t -T )
+fi
+
 DATASETS_DIR=./datasets
 test_files=($( find ${DATASETS_DIR} -type f -name "*.txt" ))
 
@@ -30,6 +38,7 @@ function run_test() {
 		echo "Success"
 	else
 		echo "Fail"
+		diff 1.txt 2.txt
 	fi
 	rm 1.txt 2.txt
 }

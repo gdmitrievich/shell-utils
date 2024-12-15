@@ -15,12 +15,24 @@ BINARY=${BINARY_DIR}/s21_grep
 make -C ${BINARY_DIR} all
 
 echo " "
-echo "Response to wrong flag:"
-./"${BINARY}" -w $test_files
+echo "Response for an empty file:"
+./"${BINARY}" -c
 
 echo " "
 echo "Response to wrong file:"
 ./"${BINARY}" -c nofile.txt
+
+echo " "
+echo "Response to wrong flag:"
+./"${BINARY}" -w $test_files
+
+echo " "
+echo "Response for an empty pattern given to -e flag:"
+./"${BINARY}" -e "${test_files[0]}"
+
+echo " "
+echo "Response for an error pattern given to -e flag:"
+./"${BINARY}" -e "[a-Z" nofile.txt
 
 function run_test() {
     local test_name="$1"
