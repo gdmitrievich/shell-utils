@@ -2,6 +2,7 @@
 #define MATCHED_LINE_H
 
 #include <stddef.h>
+#include "../common/common.h"
 
 // Last item in the sequence has -1 value at the 'line_number' field.
 typedef struct {
@@ -15,9 +16,9 @@ void init_matched_line(matched_line* ml);
 void free_matched_lines(matched_line* m_lines);
 void free_matched_line(matched_line* m_line);
 
-void try_append_matched_line(matched_line** m_lines, const matched_line* src_m_line);
+bool append_matched_line(matched_line** m_lines, const matched_line* src_m_line);
 size_t get_matched_lines_count(const matched_line* m_lines);
-void copy_matched_line(matched_line* dest, const matched_line* src);
+bool copy_matched_line(matched_line* dest, const matched_line* src);
 
 size_t get_count_of_files_with_at_least_one_matched_line(const matched_line* m_lines);
 int is_last(const matched_line* ml);
