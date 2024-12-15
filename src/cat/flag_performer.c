@@ -7,7 +7,7 @@
 bool process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
     char line[1024] = {0};
     int i = first_filepath_idx;
-	bool status = true;
+    bool status = true;
     while (status && i < argc) {
         FILE* f = fopen(argv[i], "r");
         if (f) {
@@ -29,7 +29,7 @@ bool process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
         ++i;
     }
 
-	return status;
+    return status;
 }
 
 int fpeek(FILE* f) {
@@ -74,7 +74,7 @@ bool process_flags_on_line(flags flags, char* line) {
         if (flags.T) process_T_flag_on_line(line);
     }
 
-	return status;
+    return status;
 }
 
 void process_b_flag_on_line(const char* line) {
@@ -169,7 +169,6 @@ bool process_v_flag_on_line(char* line) {
         strncpy(line, new_line, strlen(new_line) + 1);
         free(new_line);
     } else {
-        print_error("cat", NULL);
         has_error = true;
     }
 
