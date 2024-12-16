@@ -79,6 +79,8 @@ bool process_flags_on_line(flags flags, char* line) {
         if (flags.s) process_s_flag_on_line(line);
         if (flags.T) process_T_flag_on_line(line);
     }
+	if (!is_at_least_one_flag_set(&flags))
+		printf("%s", line);
 
     return status;
 }
