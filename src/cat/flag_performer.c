@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 bool process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
     int i = first_filepath_idx;
@@ -10,22 +11,21 @@ bool process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
     while (status && i < argc) {
         FILE* f = fopen(argv[i], "r");
         if (f) {
-    		char* line = NULL;
-    		size_t line_len = 0;
-            while (status && (fgetdyns(&line, &line_len, f))) {
-                if (!has_new_line_char_at_the_end(line) && fpeek(f) == EOF && i + 1 < argc) {
+            char* line = NULL;
+            size_t line_len = 0;
+            while (status && f && (fgetdyns(&line, &line_len, f))) {
+                if (!has_new_line_char_at_the_end(line, line_len) && fpeek(f) == EOF && i + 1 < argc) {
                     fclose(f);
                     f = NULL;
                     ++i;
-                    f = read_line_in_new_file(&line, &i, argc, argv);
-                    if (!f) break;
+                    f = read_line_in_new_file(&line, &line_len, &i, argc, argv);
                 }
-                status = process_flags_on_line(flags, line);
-				// free(line);
-				// line = NULL;
+                status = process_flags_on_line(flags, &line, line_len);
+                free(line);
+                line = NULL;
             }
 
-            fclose(f);
+            if (f) fclose(f);
         } else {
             print_error("cat", argv[i]);
         }
@@ -35,6 +35,8 @@ bool process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
     return status;
 }
 
+int has_new_line_char_at_the_end(const char* line, size_t len) { return is_new_line_char(line[len - 1]); }
+
 int fpeek(FILE* f) {
     if (!f) return -1;
 
@@ -42,7 +44,7 @@ int fpeek(FILE* f) {
     return ungetc(c, f);
 }
 
-FILE* read_line_in_new_file(char** line, int* i, int argc, char** argv) {
+FILE* read_line_in_new_file(char** line, size_t* line_len_ptr, int* i, int argc, char** argv) {
     bool status = true;
     FILE* f = fopen(argv[*i], "r");
     if (f) {
@@ -50,112 +52,117 @@ FILE* read_line_in_new_file(char** line, int* i, int argc, char** argv) {
         size_t line_len = 0;
         if (fgetdyns(&l, &line_len, f)) {
             if (!append_str(line, l)) status = false;
-
-            if (status && !has_new_line_char_at_the_end(*line) && fpeek(f) == EOF && *i + 1 < argc) {
+            if (status) *line_len_ptr += line_len;
+            if (status && !has_new_line_char_at_the_end(*line, *line_len_ptr) && fpeek(f) == EOF &&
+                *i + 1 < argc) {
                 fclose(f);
                 f = NULL;
                 ++*i;
-                f = read_line_in_new_file(line, i, argc, argv);
+                f = read_line_in_new_file(line, line_len_ptr, i, argc, argv);
             }
         }
-		//free(l);
+        free(l);
     } else {
         print_error("cat", argv[*i]);
         f = NULL;
+        status = false;
     }
 
     return status ? f : NULL;
 }
 
-bool process_flags_on_line(flags flags, char* line) {
-    if (!line) return false;
+bool process_flags_on_line(flags flags, char** line_ptr, size_t line_len) {
+    if (!*line_ptr) return false;
 
     bool status = true;
-    if (flags.v) status = process_v_flag_on_line(line);
+    if (flags.v) status = process_v_flag_on_line(line_ptr, &line_len);
     if (status) {
-        if (flags.b) process_b_flag_on_line(line);
-        if (flags.E) process_E_flag_on_line(line);
-        if (flags.n) process_n_flag_on_line(line);
-        if (flags.s) process_s_flag_on_line(line);
-        if (flags.T) process_T_flag_on_line(line);
+        if (flags.b) process_b_flag_on_line(*line_ptr, line_len);
+        if (flags.E) process_E_flag_on_line(*line_ptr, line_len);
+        if (flags.n) process_n_flag_on_line(*line_ptr, line_len);
+        if (flags.s) process_s_flag_on_line(*line_ptr, line_len);
+        if (flags.T) process_T_flag_on_line(*line_ptr, line_len);
     }
+    if (!is_at_least_one_flag_set(&flags)) write(STDOUT_FILENO, *line_ptr, line_len);
 
     return status;
 }
 
-void process_b_flag_on_line(const char* line) {
+void process_b_flag_on_line(const char* line, size_t line_len) {
     if (!line) return;
 
     if (!is_fully_empty_line(line))
-        process_n_flag_on_line(line);
+        process_n_flag_on_line(line, line_len);
     else
-        printf("%s", line);
+        write(STDOUT_FILENO, line, line_len);
 }
 
 int is_fully_empty_line(const char* line) { return is_new_line_char(line[0]); }
 
-void process_E_flag_on_line(const char* line) {
+void process_E_flag_on_line(const char* line, size_t line_len) {
     if (!line) return;
 
-    if (has_new_line_char_at_the_end(line)) {
-        print_chars_until_new_line_char(line);
-        printf("$\n");
+    if (has_new_line_char_at_the_end(line, line_len)) {
+        print_chars_until_new_line_char(line, line_len);
+        write(STDOUT_FILENO, "$\n", 2);
     } else {
-        printf("%s", line);
+        write(STDOUT_FILENO, line, line_len);
     }
 }
 
-void print_chars_until_new_line_char(const char* line) {
+void print_chars_until_new_line_char(const char* line, size_t line_len) {
     if (!line) return;
 
-    size_t l = strlen(line);
-    for (size_t i = 0; i < l && !is_new_line_char(line[i]); ++i) printf("%c", line[i]);
+    for (size_t i = 0; i < line_len && !is_new_line_char(line[i]); ++i) write(STDOUT_FILENO, &line[i], 1);
 }
 
-void process_n_flag_on_line(const char* line) {
+void process_n_flag_on_line(const char* line, size_t line_len) {
     if (!line) return;
 
     static int nLine = 1;
-    printf("%6d\t%s", nLine++, line);
+    const int SPACES_COUNT = 6 + 1;
+    char str[line_len + SPACES_COUNT + 1];
+    memset(str, 0, sizeof(str));
+    snprintf(str, sizeof(str), "%6d\t", nLine++);
+    memcpy(str + SPACES_COUNT, line, line_len + 1);
+    write(STDOUT_FILENO, str, line_len + SPACES_COUNT);
 }
 
-void process_s_flag_on_line(const char* line) {
+void process_s_flag_on_line(const char* line, size_t line_len) {
     if (!line) return;
 
     static int n = 0;
     if (is_fully_empty_line(line) && n == 0) {
-        printf("\n");
         n++;
+        write(STDOUT_FILENO, "\n", 1);
     } else if (!is_fully_empty_line(line)) {
         n = 0;
-        printf("%s", line);
+        write(STDOUT_FILENO, line, line_len);
     }
 }
 
-void process_T_flag_on_line(const char* line) {
+void process_T_flag_on_line(const char* line, size_t line_len) {
     if (!line) return;
 
-    size_t l = strlen(line);
-    for (size_t i = 0; i < l; ++i) {
+    for (size_t i = 0; i < line_len; ++i) {
         if (is_tab(line[i]))
-            printf("^I");
+            write(STDOUT_FILENO, "^I", 2);
         else
-            printf("%c", line[i]);
+            write(STDOUT_FILENO, &line[i], 1);
     }
 }
 
 int is_tab(char ch) { return ch == '\t'; }
 
-bool process_v_flag_on_line(char* line) {
-    if (!line) return false;
+bool process_v_flag_on_line(char** line_ptr, size_t* line_len_ptr) {
+    if (!*line_ptr) return false;
 
     bool has_error = false;
-    char* ptr = (char*)allocate_with_memset(strlen(line) * 4 + 1);
+    char* ptr = (char*)allocate_with_memset(*line_len_ptr * 4 + 1);
     if (ptr) {
         char* new_line = ptr;
-        size_t l = strlen(line);
-        for (size_t i = 0; i < l; ++i) {
-            unsigned char c = line[i];
+        for (size_t i = 0; i < *line_len_ptr; ++i) {
+            unsigned char c = (*line_ptr)[i];
             if (is_new_line_char(c) || is_tab(c))
                 strcat_formated_char_as_str(new_line, "%c", c);
             else if (c == 127)
@@ -169,11 +176,12 @@ bool process_v_flag_on_line(char* line) {
             else if (c < 255)
                 strcat_formated_char_as_str(new_line, "M-%c", c - 128);
             else
-                strcat_formated_char_as_str(new_line, "M-%c", c - 192);
+                strcat_formated_char_as_str(new_line, "M-^%c", c - 192);
         }
 
-        strncpy(line, new_line, strlen(new_line) + 1);
-        free(new_line);
+        *line_len_ptr = strlen(new_line);
+        free(*line_ptr);
+        *line_ptr = new_line;
     } else {
         has_error = true;
     }
