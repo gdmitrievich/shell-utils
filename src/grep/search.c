@@ -107,7 +107,7 @@ bool set_reg_exec_results_as_matched_lines(matched_line** m_lines_ptr, const cmd
             }
 
             fclose(fp);
-        } else {
+        } else if (!cmd->flags.s) {
             print_error("grep", cmd->search_files[i]);
         }
     }

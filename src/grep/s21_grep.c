@@ -24,5 +24,5 @@ void s21_grep(int argc, char** argv) {
     free_matched_lines(m_lines);
     free_cad(cad);
 
-    if (!status && errno != 0) print_error("grep", NULL);
+    if (!status && errno != 0 && !(cad.flags.s && errno == ENOENT)) print_error("grep", NULL);
 }
