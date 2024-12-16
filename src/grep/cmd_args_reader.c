@@ -72,7 +72,7 @@ bool set_retrieved_cmd_arg_data(cmd_args_data* cad, int argc, char** argv) {
     }
 
     if (status && optind == argc) {
-        print_error("grep", "You should specify at least one file");
+        print_error("Usage", "grep [OPTION]... PATTERNS [FILE]...");
         status = false;
     } else if (status) {
         int n_files = argc - optind + 1;
