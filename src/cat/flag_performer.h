@@ -3,14 +3,14 @@
 
 #include <stdio.h>
 
-#include "flags.h"
 #include "../common/common.h"
+#include "flags.h"
 
-void process_flags(flags flags, int first_filepath_idx, int argc, char** argv);
+bool process_flags(flags flags, int first_filepath_idx, int argc, char** argv);
 int fpeek(FILE* f);
-FILE* read_line_in_new_file(char* line, int* i, int argc, char** argv);
+FILE* read_line_in_new_file(char** line, int* i, int argc, char** argv);
 
-void process_flags_on_line(flags flags, char* line);
+bool process_flags_on_line(flags flags, char* line);
 void process_b_flag_on_line(const char* line);
 int is_fully_empty_line(const char* line);
 

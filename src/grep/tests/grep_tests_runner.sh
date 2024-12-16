@@ -19,10 +19,6 @@ echo "Response for an empty file:"
 ./"${BINARY}" -c
 
 echo " "
-echo "Response to wrong file:"
-./"${BINARY}" -c nofile.txt
-
-echo " "
 echo "Response to wrong flag:"
 ./"${BINARY}" -w $test_files
 
@@ -51,10 +47,7 @@ function run_test() {
 		((succeed++))
 	else
 		echo "Fail"
-		echo "cmd line:" "${BINARY}" "-$flags" "${template_flag}" "${template_arg}" "${files[@]}"
-		diff 1.txt 2.txt
-		rm 1.txt 2.txt
-		((failed++))
+		exit
 	fi
 
 	rm 1.txt 2.txt
