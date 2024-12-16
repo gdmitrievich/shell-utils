@@ -25,7 +25,7 @@ void* allocate_with_memset(size_t size) {
     return ptr;
 }
 
-int has_new_line_char_at_the_end(const char* line) { return is_new_line_char(line[strlen(line) - 1]); }
+int has_new_line_char_at_the_end(const char* line, size_t len) { return is_new_line_char(line[len - 1]); }
 int is_new_line_char(char ch) { return ch == '\n'; }
 
 char** append_str(char** str, const char* src) {
