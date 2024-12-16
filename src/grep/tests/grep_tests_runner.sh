@@ -15,8 +15,31 @@ BINARY=${BINARY_DIR}/s21_grep
 make -C ${BINARY_DIR} all
 
 echo " "
-echo "Response for an empty file:"
+echo "Response to the missing file and pattern:"
+# Usage: grep [OPTION]... PATTERNS [FILE]...
 ./"${BINARY}" -c
+
+echo " "
+echo "Response to the missing file:"
+# grep: You have to specify at least one file to search
+# Usage: grep [OPTION]... PATTERNS [FILE]...
+./"${BINARY}" -c 'int'
+
+echo " "
+echo "Response to the non existed file:"
+# grep: nofile.txt: No such file or directory
+./"${BINARY}" -c 'int' nofile.txt
+
+echo " "
+echo "Response to the non existed file:"
+# grep: nofile.txt: No such file or directory
+./"${BINARY}" -c 'int' nofile.txt
+
+echo " "
+echo "Response to a not given pattern:"
+# grep: You should specify at least one pattern
+# Usage: grep [OPTION]... PATTERNS [FILE]...
+./"${BINARY}" -n $test_files
 
 echo " "
 echo "Response to wrong flag:"

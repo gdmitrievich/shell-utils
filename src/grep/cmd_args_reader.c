@@ -9,6 +9,7 @@
 typedef struct option option;
 
 #include "cmd_args_data.h"
+#include "grep_common.h"
 
 bool set_retrieved_cmd_arg_data(cmd_args_data* cad, int argc, char** argv) {
     option long_options[] = {{"regexp", required_argument, 0, 'e'},
@@ -25,11 +26,13 @@ bool set_retrieved_cmd_arg_data(cmd_args_data* cad, int argc, char** argv) {
 
     int flag = 0;
     bool status = true;
+    // ':' as the first char in optstring allow getopt to return ':' instead of '?' to indicate a missing
+    // option argument.
     while (status && (flag = getopt_long(argc, argv, ":e:ivclnhsf:o", long_options, NULL)) != -1) {
         switch (flag) {
             case 'e':
                 cad->flags.e = 1;
-                if (!append_str(&cad->pattern, optarg)) status = false;
+                if (!add_pattern_to_patterns_string(&cad->patterns, optarg)) status = false;
                 break;
             case 'i':
                 cad->flags.i = 1;
@@ -54,7 +57,7 @@ bool set_retrieved_cmd_arg_data(cmd_args_data* cad, int argc, char** argv) {
                 break;
             case 'f':
                 cad->flags.f = 1;
-               	if (!append_str(&cad->pattern_file, optarg)) status = false;
+                if (!add_str_to_str_arr_dynamically(&cad->pattern_files, optarg)) status = false;
                 break;
             case 'o':
                 cad->flags.o = 1;
@@ -75,16 +78,17 @@ bool set_retrieved_cmd_arg_data(cmd_args_data* cad, int argc, char** argv) {
         print_error("Usage", "grep [OPTION]... PATTERNS [FILE]...");
         status = false;
     } else if (status) {
-        int n_files = argc - optind + 1;
-        char** ptr = (char**)allocate_with_memset(sizeof(char*) * n_files + 1);
-        if (ptr) {
-            cad->search_files = ptr;
-            for (int i = optind, j = 0; status && i < argc; ++i, ++j)
-                if (!append_str(&(cad->search_files[j]), argv[i])) status = false;
-            if (status) cad->search_files[n_files] = NULL;
-        } else {
+        if (!cad->flags.e && !cad->flags.f)
+            if (!add_pattern_to_patterns_string(&cad->patterns, argv[optind++])) status = false;
+
+        if (status && optind == argc) {
+            print_error("grep", "You should specify at least one pattern");
+            print_error("Usage", "grep [OPTION]... PATTERNS [FILE]...");
             status = false;
         }
+
+        for (int i = optind; status && i < argc; ++i)
+            if (!add_str_to_str_arr_dynamically(&cad->search_files, argv[i])) status = false;
     }
 
     return status;

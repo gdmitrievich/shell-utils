@@ -2,7 +2,7 @@
 #define CMD_ARGS_DATA
 
 typedef struct {
-    int e;  // Has arg.
+    int e;
     int i;
     int v;
     int c;
@@ -10,20 +10,22 @@ typedef struct {
     int n;
     int h;
     int s;
-    int f;  // Has arg.
+    int f;
     int o;
 } flags;
 
 typedef struct {
     flags flags;
 
-    char* pattern;  // Both -e and -f file.
-    char* pattern_file;
+    char* patterns;  // The first non option arg, if there are no -e or -f options, should be considered as
+                     // pattern.
+    char** pattern_files;
 
     char** search_files;
 } cmd_args_data;
 
 void init_cad(cmd_args_data* cad);
 void free_cad(cmd_args_data cad);
+void free_arr_of_strings(char** str_arr);
 
 #endif  // CMD_ARGS_DATA
