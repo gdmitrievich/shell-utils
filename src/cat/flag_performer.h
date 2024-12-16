@@ -7,6 +7,7 @@
 #include "flags.h"
 
 bool process_flags(flags flags, int first_filepath_idx, int argc, char** argv);
+int has_new_line_char_at_the_end_binary(const char* line, size_t len);
 int fpeek(FILE* f);
 FILE* read_line_in_new_file(char** line, size_t* line_len_ptr, int* i, int argc, char** argv);
 
