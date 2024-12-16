@@ -2,8 +2,14 @@
 
 #include "cmd_args_reader.h"
 #include "flag_performer.h"
+#include "s21_cat.h"
 
 int main(int argc, char** argv) {
+	s21_cat(argc, argv);
+    return 0;
+}
+
+void s21_cat(int argc, char** argv) {
     flags f;
     init_flags(&f);
     bool status = set_cmd_arg_flags(&f, argc, argv);
@@ -11,5 +17,4 @@ int main(int argc, char** argv) {
     if (status) status = set_idx_of_first_filepath(&f_idx, argc, argv);
     if (status) status = process_flags(f, f_idx, argc, argv);
     if (!status && errno != 0) print_error("cat", NULL);
-    return 0;
 }
