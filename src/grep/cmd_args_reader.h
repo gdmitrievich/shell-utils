@@ -5,5 +5,7 @@
 #include "cmd_args_data.h"
 
 bool set_retrieved_cmd_arg_data(cmd_args_data* cad, int argc, char** argv);
+bool set_cmd_arg_flags(cmd_args_data* cad, int argc, char** argv);
+bool set_cmd_arg_files(cmd_args_data* cad, int argc, char** argv);
 
 #endif  // CMD_ARGS_READER_H
