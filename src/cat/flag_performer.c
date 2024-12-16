@@ -13,13 +13,12 @@ bool process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
         if (f) {
             char* line = NULL;
             size_t line_len = 0;
-            while (status && (fgetdyns(&line, &line_len, f))) {
+            while (status && f && (fgetdyns(&line, &line_len, f))) {
                 if (!has_new_line_char_at_the_end(line, line_len) && fpeek(f) == EOF && i + 1 < argc) {
                     fclose(f);
                     f = NULL;
                     ++i;
                     f = read_line_in_new_file(&line, &line_len, &i, argc, argv);
-                    if (!f) break;
                 }
                 status = process_flags_on_line(flags, &line, line_len);
                 free(line);
@@ -119,12 +118,12 @@ void process_n_flag_on_line(const char* line, size_t line_len) {
     if (!line) return;
 
     static int nLine = 1;
-    const int SPACES = 6 + 1;
-    char str[line_len + SPACES + 1];
+    const int SPACES_COUNT = 6 + 1;
+    char str[line_len + SPACES_COUNT + 1];
     memset(str, 0, sizeof(str));
     snprintf(str, sizeof(str), "%6d\t", nLine++);
-    memcpy(str + SPACES, line, line_len + 1);
-    write(STDOUT_FILENO, str, line_len + SPACES);
+    memcpy(str + SPACES_COUNT, line, line_len + 1);
+    write(STDOUT_FILENO, str, line_len + SPACES_COUNT);
 }
 
 void process_s_flag_on_line(const char* line, size_t line_len) {
@@ -132,8 +131,8 @@ void process_s_flag_on_line(const char* line, size_t line_len) {
 
     static int n = 0;
     if (is_fully_empty_line(line) && n == 0) {
-        write(STDOUT_FILENO, "\n", 1);
         n++;
+        write(STDOUT_FILENO, "\n", 1);
     } else if (!is_fully_empty_line(line)) {
         n = 0;
         write(STDOUT_FILENO, line, line_len);
