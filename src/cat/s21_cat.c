@@ -1,11 +1,12 @@
+#include "s21_cat.h"
+
 #include <errno.h>
 
 #include "cmd_args_reader.h"
 #include "flag_performer.h"
-#include "s21_cat.h"
 
 int main(int argc, char** argv) {
-	s21_cat(argc, argv);
+    s21_cat(argc, argv);
     return 0;
 }
 

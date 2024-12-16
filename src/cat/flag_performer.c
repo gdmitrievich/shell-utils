@@ -11,8 +11,8 @@ bool process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
     while (status && i < argc) {
         FILE* f = fopen(argv[i], "r");
         if (f) {
-    		char* line = NULL;
-    		size_t line_len = 0;
+            char* line = NULL;
+            size_t line_len = 0;
             while (status && (fgetdyns(&line, &line_len, f))) {
                 if (!has_new_line_char_at_the_end(line, line_len) && fpeek(f) == EOF && i + 1 < argc) {
                     fclose(f);
@@ -22,8 +22,8 @@ bool process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
                     if (!f) break;
                 }
                 status = process_flags_on_line(flags, &line, line_len);
-				free(line);
-				line = NULL;
+                free(line);
+                line = NULL;
             }
 
             if (f) fclose(f);
@@ -51,19 +51,20 @@ FILE* read_line_in_new_file(char** line, size_t* line_len_ptr, int* i, int argc,
         size_t line_len = 0;
         if (fgetdyns(&l, &line_len, f)) {
             if (!append_str(line, l)) status = false;
-			if (status) *line_len_ptr += line_len;
-            if (status && !has_new_line_char_at_the_end(*line, *line_len_ptr) && fpeek(f) == EOF && *i + 1 < argc) {
+            if (status) *line_len_ptr += line_len;
+            if (status && !has_new_line_char_at_the_end(*line, *line_len_ptr) && fpeek(f) == EOF &&
+                *i + 1 < argc) {
                 fclose(f);
                 f = NULL;
                 ++*i;
                 f = read_line_in_new_file(line, line_len_ptr, i, argc, argv);
             }
         }
-		free(l);
+        free(l);
     } else {
         print_error("cat", argv[*i]);
         f = NULL;
-		status = false;
+        status = false;
     }
 
     return status ? f : NULL;
@@ -81,8 +82,7 @@ bool process_flags_on_line(flags flags, char** line_ptr, size_t line_len) {
         if (flags.s) process_s_flag_on_line(*line_ptr, line_len);
         if (flags.T) process_T_flag_on_line(*line_ptr, line_len);
     }
-	if (!is_at_least_one_flag_set(&flags))
-		write(STDOUT_FILENO, *line_ptr, line_len);
+    if (!is_at_least_one_flag_set(&flags)) write(STDOUT_FILENO, *line_ptr, line_len);
 
     return status;
 }
@@ -93,7 +93,7 @@ void process_b_flag_on_line(const char* line, size_t line_len) {
     if (!is_fully_empty_line(line))
         process_n_flag_on_line(line, line_len);
     else
-		write(STDOUT_FILENO, line, line_len);
+        write(STDOUT_FILENO, line, line_len);
 }
 
 int is_fully_empty_line(const char* line) { return is_new_line_char(line[0]); }
@@ -103,29 +103,28 @@ void process_E_flag_on_line(const char* line, size_t line_len) {
 
     if (has_new_line_char_at_the_end(line, line_len)) {
         print_chars_until_new_line_char(line, line_len);
-		write(STDOUT_FILENO, "$\n", 2);
+        write(STDOUT_FILENO, "$\n", 2);
     } else {
-		write(STDOUT_FILENO, line, line_len);
+        write(STDOUT_FILENO, line, line_len);
     }
 }
 
 void print_chars_until_new_line_char(const char* line, size_t line_len) {
     if (!line) return;
 
-    for (size_t i = 0; i < line_len && !is_new_line_char(line[i]); ++i)
-		write(STDOUT_FILENO, &line[i], 1);
+    for (size_t i = 0; i < line_len && !is_new_line_char(line[i]); ++i) write(STDOUT_FILENO, &line[i], 1);
 }
 
 void process_n_flag_on_line(const char* line, size_t line_len) {
     if (!line) return;
 
     static int nLine = 1;
-	const int SPACES = 6 + 1;
+    const int SPACES = 6 + 1;
     char str[line_len + SPACES + 1];
-	memset(str, 0, sizeof(str));
+    memset(str, 0, sizeof(str));
     snprintf(str, sizeof(str), "%6d\t", nLine++);
-	memcpy(str + SPACES, line, line_len + 1);
-	write(STDOUT_FILENO, str, line_len + SPACES);
+    memcpy(str + SPACES, line, line_len + 1);
+    write(STDOUT_FILENO, str, line_len + SPACES);
 }
 
 void process_s_flag_on_line(const char* line, size_t line_len) {
@@ -133,11 +132,11 @@ void process_s_flag_on_line(const char* line, size_t line_len) {
 
     static int n = 0;
     if (is_fully_empty_line(line) && n == 0) {
-		write(STDOUT_FILENO, "\n", 1);
+        write(STDOUT_FILENO, "\n", 1);
         n++;
     } else if (!is_fully_empty_line(line)) {
         n = 0;
-		write(STDOUT_FILENO, line, line_len);
+        write(STDOUT_FILENO, line, line_len);
     }
 }
 
@@ -146,9 +145,9 @@ void process_T_flag_on_line(const char* line, size_t line_len) {
 
     for (size_t i = 0; i < line_len; ++i) {
         if (is_tab(line[i]))
-			write(STDOUT_FILENO, "^I", 2);
+            write(STDOUT_FILENO, "^I", 2);
         else
-			write(STDOUT_FILENO, &line[i], 1);
+            write(STDOUT_FILENO, &line[i], 1);
     }
 }
 
@@ -179,9 +178,9 @@ bool process_v_flag_on_line(char** line_ptr, size_t* line_len_ptr) {
                 strcat_formated_char_as_str(new_line, "M-^%c", c - 192);
         }
 
-		*line_len_ptr = strlen(new_line);
+        *line_len_ptr = strlen(new_line);
         free(*line_ptr);
-		*line_ptr = new_line;
+        *line_ptr = new_line;
     } else {
         has_error = true;
     }

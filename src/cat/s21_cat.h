@@ -3,4 +3,4 @@
 
 void s21_cat(int argc, char** argv);
 
-#endif // S21_CAT_H
+#endif  // S21_CAT_H

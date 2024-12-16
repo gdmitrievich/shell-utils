@@ -20,7 +20,7 @@ bool set_cmd_arg_flags(flags* f, int argc, char** argv) {
     bool has_error = false;
     int flag = 0;
     int longind = 0;
-	opterr = 0;
+    opterr = 0;
     while ((flag = getopt_long(argc, argv, "beEnstT", long_options, &longind)) != -1) {
         switch (flag) {
             case 'b':
