@@ -2,18 +2,18 @@
 
 #include <stdio.h>
 
-void output(const matched_line* m_lines, const cmd_args_data* cmd) {
-    if (!m_lines || !cmd) return;
+void output(const matched_line* m_lines, const cmd_args_data* cad) {
+    if (!m_lines || !cad) return;
 
-    size_t n_files = get_count_of_files_with_at_least_one_matched_line(m_lines);
-    const flags* f = &cmd->flags;
+    size_t n_files = get_count_of_files_from_cmd_args(cad);
+    const flags* f = &cad->flags;
     if (n_files > 0 && f->l) {
         print_file_names_with_at_least_one_matched_line(m_lines);
     } else if (n_files > 0) {
         if (f->c) {
-            for (size_t i = 0; cmd->search_files[i] != NULL; ++i) {
-                if (!f->h) printf("%s:", cmd->search_files[i]);
-                size_t n = get_matched_lines_count_on_file(cmd->search_files[i], m_lines);
+            for (size_t i = 0; cad->search_files[i] != NULL; ++i) {
+                if (!f->h) printf("%s:", cad->search_files[i]);
+                size_t n = get_matched_lines_count_on_file(cad->search_files[i], m_lines);
                 if (n != __SIZE_MAX__)
                     printf("%ld\n", n);
                 else
@@ -32,6 +32,12 @@ void output(const matched_line* m_lines, const cmd_args_data* cmd) {
             }
         }
     }
+}
+
+size_t get_count_of_files_from_cmd_args(const cmd_args_data* cad) {
+	size_t n = 0;
+	while (cad->search_files[n] != NULL) ++n;
+	return n;
 }
 
 void print_file_names_with_at_least_one_matched_line(const matched_line* m_lines) {

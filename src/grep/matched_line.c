@@ -70,21 +70,6 @@ bool copy_matched_line(matched_line* dest, const matched_line* src) {
     return status;
 }
 
-size_t get_count_of_files_with_at_least_one_matched_line(const matched_line* m_lines) {
-    if (!m_lines) return __SIZE_MAX__;
-
-    size_t n = 0;
-    const char* prev_file_name = NULL;
-    for (size_t i = 0; !is_last(&m_lines[i]); ++i) {
-        if (!prev_file_name || strcmp(prev_file_name, m_lines[i].file_name)) {
-            n++;
-            prev_file_name = m_lines[i].file_name;
-        }
-    }
-
-    return n;
-}
-
 int is_last(const matched_line* ml) { return ml->line_number == -1; }
 
 const char* get_next_file_name(const char* file_name, const matched_line* m_lines) {
