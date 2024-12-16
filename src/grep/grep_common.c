@@ -26,7 +26,7 @@ char** add_str_to_str_arr_dynamically(char*** str_arr_ptr, const char* str) {
 
     if (p) {
         *str_arr_ptr = p;
-        append_str(*str_arr_ptr + next_idx, str);
+        if (!append_str(*str_arr_ptr + next_idx, str)) status = false;
         *(*str_arr_ptr + next_idx + 1) = NULL;
     } else {
         status = false;
