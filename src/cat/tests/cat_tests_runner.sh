@@ -9,6 +9,8 @@ else
 	flags=( -b -e -E -n -s -t -T )
 fi
 
+long_flags=( --number-nonblank --number --squeeze-blank )
+
 DATASETS_DIR=./datasets
 test_files=($( find ${DATASETS_DIR} -type f -name "*.txt" ))
 
@@ -72,6 +74,23 @@ do
 		((test_number++))
     done
 done
+
+for long_flag in ${long_flags[@]}
+do
+    echo ""
+    echo "Tests with flag $long_flag:"
+    for test_file in ${test_files[@]}
+    do
+		run_test "Test $test_number: " "$flag" "$test_file"
+		((test_number++))
+    done
+done
+
+echo ""
+echo "Additional tests"
+echo "Without flags"
+run_test "Test $test_number: " "${test_files[0]}" "${test_files[1]}"
+((test_number++))
 
 echo ""
 echo "Succeed: $succeed"
