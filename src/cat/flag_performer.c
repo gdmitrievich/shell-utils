@@ -25,7 +25,7 @@ bool process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
 				// line = NULL;
             }
 
-            fclose(f);
+            if (f) fclose(f);
         } else {
             print_error("cat", argv[i]);
         }
@@ -62,6 +62,7 @@ FILE* read_line_in_new_file(char** line, int* i, int argc, char** argv) {
     } else {
         print_error("cat", argv[*i]);
         f = NULL;
+		status = false;
     }
 
     return status ? f : NULL;
