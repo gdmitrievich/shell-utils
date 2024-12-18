@@ -82,13 +82,6 @@ bool copy_matched_line(matched_line* dest, const matched_line* src) {
 
 int is_last(const matched_line* ml) { return ml->line_number == -1; }
 
-const char* get_next_file_name(const char* file_name, const matched_line* m_lines) {
-    if (!file_name) return m_lines[0].file_name;
-
-    size_t idx = find_idx_of_last_matched_line_with_file_name(file_name, m_lines);
-    return idx == __SIZE_MAX__ || is_last(&m_lines[idx + 1]) ? NULL : m_lines[idx + 1].file_name;
-}
-
 size_t find_idx_of_last_matched_line_with_file_name(const char* file_name, const matched_line* m_lines) {
     if (!file_name) return __SIZE_MAX__;
 
