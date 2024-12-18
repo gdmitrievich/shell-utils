@@ -64,11 +64,11 @@ bool set_cmd_arg_flags(cmd_args_data* cad, int argc, char** argv) {
             status = false;
         }
     }
-	return status;
+    return status;
 }
 
 bool set_cmd_arg_files(cmd_args_data* cad, int argc, char** argv) {
-	bool status = true;
+    bool status = true;
     if (optind == argc) {
         print_error("Usage", "grep [OPTION]... PATTERNS [FILE]...");
         status = false;
@@ -85,5 +85,5 @@ bool set_cmd_arg_files(cmd_args_data* cad, int argc, char** argv) {
         for (int i = optind; status && i < argc; ++i)
             if (!add_str_to_str_arr_dynamically(&cad->search_files, argv[i])) status = false;
     }
-	return status;
+    return status;
 }

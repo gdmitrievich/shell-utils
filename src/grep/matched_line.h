@@ -13,6 +13,7 @@ typedef struct {
 } matched_line;
 
 void init_matched_line(matched_line* ml);
+bool fill_matched_line(matched_line* ml_ptr, size_t line_number, const char* file_name, const char* line);
 
 void free_matched_lines(matched_line* m_lines);
 void free_matched_line(matched_line* m_line);
@@ -23,7 +24,6 @@ bool copy_matched_line(matched_line* dest, const matched_line* src);
 
 int is_last(const matched_line* ml);
 
-const char* get_next_file_name(const char* file_name, const matched_line* m_lines);
 size_t find_idx_of_last_matched_line_with_file_name(const char* file_name, const matched_line* m_lines);
 size_t find_idx_of_first_matched_line_with_file_name(const char* file_name, const matched_line* m_lines);
 

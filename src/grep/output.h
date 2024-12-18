@@ -4,15 +4,14 @@
 #include "cmd_args_data.h"
 #include "matched_line.h"
 
-void output(const matched_line* m_lines, const cmd_args_data* cmd);
+void output(const matched_line* m_lines, const cmd_args_data* cad, const char* search_file);
 
 size_t get_count_of_files_from_cmd_args(const cmd_args_data* cad);
 
-void print_file_names_with_at_least_one_matched_line(const matched_line* m_lines);
-
-void print_count_of_matched_lines_on_each_search_file(const matched_line* m_lines, const cmd_args_data* cad);
+void print_count_of_matched_lines_on_search_file(const matched_line* m_lines, const cmd_args_data* cad,
+                                                 const char* search_file);
 
 void print_matched_lines_with_additional_info_if_needed(const matched_line* m_lines, const cmd_args_data* cad,
-                                                        size_t n_files);
+                                                        const char* search_file);
 
 #endif  // OUTPUT_H

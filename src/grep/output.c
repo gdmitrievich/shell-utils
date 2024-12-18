@@ -2,18 +2,17 @@
 
 #include <stdio.h>
 
-void output(const matched_line* m_lines, const cmd_args_data* cad) {
-    if (!m_lines || !cad) return;
+void output(const matched_line* m_lines, const cmd_args_data* cad, const char* search_file) {
+    if (!cad) return;
 
-    size_t n_files = get_count_of_files_from_cmd_args(cad);
-    const flags* f = &cad->flags;
-    if (n_files > 0 && f->l) {
-        print_file_names_with_at_least_one_matched_line(m_lines);
-    } else if (n_files > 0) {
-        if (f->c)
-            print_count_of_matched_lines_on_each_search_file(m_lines, cad);
+    if (cad->flags.l) {
+        size_t n = get_matched_lines_count_on_file(search_file, m_lines);
+        if (n > 0 && n != __SIZE_MAX__) printf("%s\n", search_file);
+    } else {
+        if (cad->flags.c)
+            print_count_of_matched_lines_on_search_file(m_lines, cad, search_file);
         else
-            print_matched_lines_with_additional_info_if_needed(m_lines, cad, n_files);
+            print_matched_lines_with_additional_info_if_needed(m_lines, cad, search_file);
     }
 }
 
@@ -23,34 +22,33 @@ size_t get_count_of_files_from_cmd_args(const cmd_args_data* cad) {
     return n;
 }
 
-void print_file_names_with_at_least_one_matched_line(const matched_line* m_lines) {
-    if (!m_lines) return;
-
-    const char* fn = NULL;
-    while ((fn = get_next_file_name(fn, m_lines)) != NULL) printf("%s\n", fn);
-}
-
-void print_count_of_matched_lines_on_each_search_file(const matched_line* m_lines, const cmd_args_data* cad) {
-    for (size_t i = 0; cad->search_files[i] != NULL; ++i) {
-        if (!cad->flags.h) printf("%s:", cad->search_files[i]);
-        size_t n = get_matched_lines_count_on_file(cad->search_files[i], m_lines);
-        if (n != __SIZE_MAX__)
-            printf("%ld\n", n);
-        else
-            printf("0\n");
-    }
+void print_count_of_matched_lines_on_search_file(const matched_line* m_lines, const cmd_args_data* cad,
+                                                 const char* search_file) {
+    size_t n_files = get_count_of_files_from_cmd_args(cad);
+    if (n_files > 1 && !cad->flags.h) printf("%s:", search_file);
+    size_t n = get_matched_lines_count_on_file(search_file, m_lines);
+    if (n != __SIZE_MAX__)
+        printf("%ld\n", n);
+    else
+        printf("0\n");
 }
 
 void print_matched_lines_with_additional_info_if_needed(const matched_line* m_lines, const cmd_args_data* cad,
-                                                        size_t n_files) {
-    size_t n_lines = get_matched_lines_count(m_lines);
-    for (size_t i = 0; i < n_lines; ++i) {
-        if (n_files > 1 && !cad->flags.h) {
-            printf("%s:", m_lines[i].file_name);
+                                                        const char* search_file) {
+    if (!m_lines) return;
+
+    size_t n_files = get_count_of_files_from_cmd_args(cad);
+    size_t l_idx = find_idx_of_last_matched_line_with_file_name(search_file, m_lines);
+    if (l_idx != __SIZE_MAX__) {
+        for (size_t i = find_idx_of_first_matched_line_with_file_name(search_file, m_lines); i <= l_idx;
+             ++i) {
+            if (n_files > 1 && !cad->flags.h) {
+                printf("%s:", m_lines[i].file_name);
+            }
+            if (cad->flags.n) {
+                printf("%d:", m_lines[i].line_number);
+            }
+            printf("%s\n", m_lines[i].line);
         }
-        if (cad->flags.n) {
-            printf("%d:", m_lines[i].line_number);
-        }
-        printf("%s\n", m_lines[i].line);
     }
 }

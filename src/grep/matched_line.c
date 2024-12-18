@@ -11,6 +11,16 @@ void init_matched_line(matched_line* ml) {
     ml->line = NULL;
 }
 
+bool fill_matched_line(matched_line* ml_ptr, size_t line_number, const char* file_name, const char* line) {
+    init_matched_line(ml_ptr);
+    bool status = true;
+    ml_ptr->line_number = line_number;
+    if (!append_str(&ml_ptr->file_name, file_name)) status = false;
+    if (status && !append_str(&ml_ptr->line, line)) status = false;
+
+    return status;
+}
+
 void free_matched_lines(matched_line* m_lines) {
     if (!m_lines) return;
 
@@ -30,28 +40,28 @@ bool append_matched_line(matched_line** m_lines, const matched_line* src_m_line)
     if (!src_m_line) return false;
 
     bool status = true;
-	matched_line* p = NULL;
-	size_t next_idx = 0;
+    matched_line* p = NULL;
+    size_t next_idx = 0;
     if (*m_lines) {
         size_t n = get_matched_lines_count(*m_lines);
         p = (matched_line*)realloc(*m_lines, sizeof(matched_line) * (n + 2));
-		next_idx = n;
+        next_idx = n;
     } else {
         p = allocate_with_memset(sizeof(matched_line) * 2);
-		next_idx = 0;
+        next_idx = 0;
     }
 
-	if (p) {
-		*m_lines = p;
-		init_matched_line(*m_lines + next_idx);
-		init_matched_line(*m_lines + next_idx + 1);
-		status = copy_matched_line(*m_lines + next_idx, src_m_line);
-		if (status)
-			status = copy_matched_line(*m_lines + next_idx + 1,
-								&(matched_line){.file_name = NULL, .line = NULL, .line_number = -1});
-	} else {
-		status = false;
-	}
+    if (p) {
+        *m_lines = p;
+        init_matched_line(*m_lines + next_idx);
+        init_matched_line(*m_lines + next_idx + 1);
+        status = copy_matched_line(*m_lines + next_idx, src_m_line);
+        if (status)
+            status = copy_matched_line(*m_lines + next_idx + 1,
+                                       &(matched_line){.file_name = NULL, .line = NULL, .line_number = -1});
+    } else {
+        status = false;
+    }
 
     return status;
 }
@@ -71,13 +81,6 @@ bool copy_matched_line(matched_line* dest, const matched_line* src) {
 }
 
 int is_last(const matched_line* ml) { return ml->line_number == -1; }
-
-const char* get_next_file_name(const char* file_name, const matched_line* m_lines) {
-    if (!file_name) return m_lines[0].file_name;
-
-    size_t idx = find_idx_of_last_matched_line_with_file_name(file_name, m_lines);
-    return idx == __SIZE_MAX__ || is_last(&m_lines[idx + 1]) ? NULL : m_lines[idx + 1].file_name;
-}
 
 size_t find_idx_of_last_matched_line_with_file_name(const char* file_name, const matched_line* m_lines) {
     if (!file_name) return __SIZE_MAX__;
