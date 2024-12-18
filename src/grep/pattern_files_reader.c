@@ -1,8 +1,9 @@
 #include "pattern_files_reader.h"
 
-#include "grep_common.h"
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+
+#include "grep_common.h"
 
 bool set_regexes_retrieved_from_files(char** patterns_ptr, char** pattern_files) {
     bool status = true;

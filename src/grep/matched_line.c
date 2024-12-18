@@ -30,28 +30,28 @@ bool append_matched_line(matched_line** m_lines, const matched_line* src_m_line)
     if (!src_m_line) return false;
 
     bool status = true;
-	matched_line* p = NULL;
-	size_t next_idx = 0;
+    matched_line* p = NULL;
+    size_t next_idx = 0;
     if (*m_lines) {
         size_t n = get_matched_lines_count(*m_lines);
         p = (matched_line*)realloc(*m_lines, sizeof(matched_line) * (n + 2));
-		next_idx = n;
+        next_idx = n;
     } else {
         p = allocate_with_memset(sizeof(matched_line) * 2);
-		next_idx = 0;
+        next_idx = 0;
     }
 
-	if (p) {
-		*m_lines = p;
-		init_matched_line(*m_lines + next_idx);
-		init_matched_line(*m_lines + next_idx + 1);
-		status = copy_matched_line(*m_lines + next_idx, src_m_line);
-		if (status)
-			status = copy_matched_line(*m_lines + next_idx + 1,
-								&(matched_line){.file_name = NULL, .line = NULL, .line_number = -1});
-	} else {
-		status = false;
-	}
+    if (p) {
+        *m_lines = p;
+        init_matched_line(*m_lines + next_idx);
+        init_matched_line(*m_lines + next_idx + 1);
+        status = copy_matched_line(*m_lines + next_idx, src_m_line);
+        if (status)
+            status = copy_matched_line(*m_lines + next_idx + 1,
+                                       &(matched_line){.file_name = NULL, .line = NULL, .line_number = -1});
+    } else {
+        status = false;
+    }
 
     return status;
 }
