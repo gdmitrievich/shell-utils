@@ -13,6 +13,7 @@ typedef struct {
 } matched_line;
 
 void init_matched_line(matched_line* ml);
+bool fill_matched_line(matched_line* ml_ptr, size_t line_number, const char* file_name, const char* line);
 
 void free_matched_lines(matched_line* m_lines);
 void free_matched_line(matched_line* m_line);

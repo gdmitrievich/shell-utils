@@ -11,6 +11,16 @@ void init_matched_line(matched_line* ml) {
     ml->line = NULL;
 }
 
+bool fill_matched_line(matched_line* ml_ptr, size_t line_number, const char* file_name, const char* line) {
+    init_matched_line(ml_ptr);
+    bool status = true;
+    ml_ptr->line_number = line_number;
+    if (!append_str(&ml_ptr->file_name, file_name)) status = false;
+    if (status && !append_str(&ml_ptr->line, line)) status = false;
+
+    return status;
+}
+
 void free_matched_lines(matched_line* m_lines) {
     if (!m_lines) return;
 
