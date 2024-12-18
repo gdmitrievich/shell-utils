@@ -57,8 +57,8 @@ bool set_matched_lines_with_patterns_from_file(matched_line** m_lines_ptr, const
             }
 
             ++line_num;
-            // free(line);
-            // line = NULL;
+            free(line);
+            line = NULL;
         }
 
         fclose(fp);

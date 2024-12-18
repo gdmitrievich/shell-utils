@@ -9,9 +9,9 @@ void output(const matched_line* m_lines, const cmd_args_data* cad, const char* s
 size_t get_count_of_files_from_cmd_args(const cmd_args_data* cad);
 
 void print_count_of_matched_lines_on_search_file(const matched_line* m_lines, const cmd_args_data* cad,
-                                                 size_t n_files, const char* search_file);
+                                                 const char* search_file);
 
 void print_matched_lines_with_additional_info_if_needed(const matched_line* m_lines, const cmd_args_data* cad,
-                                                        size_t n_files, const char* search_file);
+                                                        const char* search_file);
 
 #endif  // OUTPUT_H
