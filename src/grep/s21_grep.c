@@ -19,7 +19,7 @@ void s21_grep(int argc, char** argv) {
     cmd_args_data cad;
     init_cad(&cad);
     bool status = set_retrieved_cmd_arg_data(&cad, argc, argv);
-    if (status && cad.flags.f) status = set_regexes_retrieved_from_files(&cad.patterns, cad.pattern_files);
+    if (cad.flags.f) status = set_regexes_retrieved_from_files(&cad.patterns, cad.pattern_files);
     if (status) status = process_files_one_by_one_as_grep_utility(&cad);
     free_cad(cad);
 

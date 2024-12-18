@@ -27,11 +27,11 @@ bool set_regexes_retrieved_from_file(char** patterns_ptr, FILE* fp) {
     while (status && fgetdyns(&line, &line_len, fp) != NULL) {
         if (has_new_line_char_at_the_end(line)) line[strlen(line) - 1] = '\0';
 
-        if (*line == '\0')
-            if (!add_pattern_to_patterns_string(patterns_ptr, "."))
-                status = false;
-            else if (!add_pattern_to_patterns_string(patterns_ptr, line))
-                status = false;
+        if (*line == '\0') {
+            if (!add_pattern_to_patterns_string(patterns_ptr, ".")) status = false;
+        } else {
+            if (!add_pattern_to_patterns_string(patterns_ptr, line)) status = false;
+        }
         free(line);
         line = NULL;
     }
