@@ -8,6 +8,7 @@
 #include "matched_line.h"
 #include "output.h"
 #include "search.h"
+#include "pattern_files_reader.h"
 
 int main(int argc, char** argv) {
     s21_grep(argc, argv);
