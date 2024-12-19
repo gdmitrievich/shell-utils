@@ -44,6 +44,23 @@ char** append_str(char** str, const char* src) {
     return status ? str : NULL;
 }
 
+char** append_binary_str(char** str, size_t str_len, const char* src, size_t src_len) {
+    if (!src) return str;
+
+    char* ptr = NULL;
+    bool status = false;
+    if (*str)
+        ptr = realloc(*str, str_len + src_len + 1);
+    else
+        ptr = allocate_with_memset(src_len + 1);
+    if (ptr) {
+        *str = ptr;
+		memcpy(*str + str_len, src, src_len);
+        status = true;
+    }
+    return status ? str : NULL;
+}
+
 void substr(char* sub, const char* str, size_t start, size_t len) {
     memcpy(sub, &str[start], len);
     sub[len] = '\0';
