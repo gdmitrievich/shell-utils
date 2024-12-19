@@ -30,7 +30,7 @@ bool process_files_one_by_one_as_grep_utility(const cmd_args_data* cad) {
     bool status = true;
     for (size_t i = 0; status && cad->search_files[i] != NULL; ++i) {
         matched_line* m_lines = NULL;
-		bool file_found = true;
+        bool file_found = true;
         status = set_matched_lines_with_patterns_from_file(&m_lines, cad, cad->search_files[i], &file_found);
         if (status && file_found) output(m_lines, cad, cad->search_files[i]);
         free_matched_lines(m_lines);
