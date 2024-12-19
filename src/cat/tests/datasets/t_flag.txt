@@ -1,6 +1,6 @@
 Testing the flag
             -t
-Tabs        are here too   
-        
+Tabs        are here too
+
 
 and here too

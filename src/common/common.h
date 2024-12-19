@@ -14,6 +14,8 @@ int is_new_line_char(char ch);
 /// @brief Strcat src to str. If str is NULL, then new memory for str will be allocated.
 /// @return str if src is NULL or memory for extended str successfully allocated, otherwise NULL.
 char** append_str(char** str, const char* src);
+char** append_binary_str(char** str, size_t str_len, const char* src, size_t src_len);
+
 void substr(char* sub, const char* str, size_t start, size_t len);
 
 /// @brief Reads in at most one less than n characters from stream and stores them into the dynamically

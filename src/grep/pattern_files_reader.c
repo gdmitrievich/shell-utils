@@ -14,6 +14,7 @@ bool set_regexes_retrieved_from_files(char** patterns_ptr, char** pattern_files)
             fclose(fp);
         } else {
             print_error("grep", pattern_files[i]);
+            status = false;
         }
     }
 

@@ -35,7 +35,9 @@ bool process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
     return status;
 }
 
-int has_new_line_char_at_the_end_binary(const char* line, size_t len) { return is_new_line_char(line[len - 1]); }
+int has_new_line_char_at_the_end_binary(const char* line, size_t len) {
+    return is_new_line_char(line[len - 1]);
+}
 
 int fpeek(FILE* f) {
     if (!f) return -1;
@@ -51,7 +53,7 @@ FILE* read_line_in_new_file(char** line, size_t* line_len_ptr, int* i, int argc,
         char* l = NULL;
         size_t line_len = 0;
         if (fgetdyns(&l, &line_len, f)) {
-            if (!append_str(line, l)) status = false;
+            if (!append_binary_str(line, *line_len_ptr, l, line_len)) status = false;
             if (status) *line_len_ptr += line_len;
             if (status && !has_new_line_char_at_the_end_binary(*line, *line_len_ptr) && fpeek(f) == EOF &&
                 *i + 1 < argc) {
