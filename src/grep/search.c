@@ -1,138 +1,98 @@
 #include "search.h"
 
-#define BUFFSIZE 4096
-
+#include <errno.h>
 #include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 
-#include "../common/common.h"
 #include "grep_common.h"
 
-bool set_matched_lines(matched_line** m_lines_ptr, cmd_args_data* cad) {
-    bool status = true;
-    if (cad->flags.f) status = set_regexes_retrieved_from_files(&(cad->patterns), cad->pattern_files);
-    if (status) status = set_reg_exec_results_as_matched_lines(m_lines_ptr, cad);
-    return status;
-}
-
-bool set_regexes_retrieved_from_files(char** patterns_ptr, char** pattern_files) {
-    bool status = true;
-    for (size_t i = 0; status && pattern_files[i] != NULL; ++i) {
-        FILE* fp = fopen(pattern_files[i], "r");
-        if (fp) {
-            set_regexes_retrieved_from_file(patterns_ptr, fp);
-            fclose(fp);
-        } else {
-            print_error("grep", pattern_files[i]);
-        }
-    }
-
-    return status;
-}
-
-bool set_regexes_retrieved_from_file(char** patterns_ptr, FILE* fp) {
-    char* line = NULL;
-    size_t line_len = 0;
-	bool status = true;
-    while (status && fgetdyns(&line, &line_len, fp) != NULL) {
-        if (has_new_line_char_at_the_end(line)) line[strlen(line) - 1] = '\0';
-
-        if (*line == '\0') {
-            if (!add_pattern_to_patterns_string(patterns_ptr, ".")) status = false;
-        } else {
-            if (!add_pattern_to_patterns_string(patterns_ptr, line)) status = false;
-        }
-        free(line);
-        line = NULL;
-    }
-
-	return status;
-}
-
-int has_new_line_char_at_the_end(const char* line) { return is_new_line_char(line[strlen(line) - 1]); }
-
-bool set_reg_exec_results_as_matched_lines(matched_line** m_lines_ptr, const cmd_args_data* cmd) {
-    if (cmd->patterns == NULL) return false;
-
+bool set_matched_lines_with_patterns_from_file(matched_line** m_lines_ptr, const cmd_args_data* cad,
+                                               const char* search_file, bool* file_found) {
+    if (cad->patterns == NULL) return false;
     bool status = true;
     regex_t regex;
     size_t error = 0;
-    // REG_EXTENDED to use "|" in pattern.
-    if ((error = regcomp(&regex, cmd->patterns, REG_EXTENDED | (cmd->flags.i ? REG_ICASE : 0))) != 0) {
-        // If errbuf_size is 0 returns the size of the buffer needed to hold the generated string.
-        size_t err_len = regerror(error, &regex, (char*)NULL, 0);
-        char* err_buf = (char*)allocate_with_memset(err_len);
-        if (err_buf) {
-            regerror(error, &regex, err_buf, err_len);
-            print_error("grep", err_buf);
-            status = false;
-            free(err_buf);
-        }
+    if ((error = regcomp(&regex, cad->patterns, REG_EXTENDED | (cad->flags.i ? REG_ICASE : 0))) >
+        REG_NOMATCH) {
+        output_regex_error(error, &regex);
+        status = false;
     }
-
-    for (int i = 0; status && cmd->search_files[i] != NULL; ++i) {
-        FILE* fp = fopen(cmd->search_files[i], "r");
-        if (fp) {
-            size_t line_num = 1;
-            char* line = NULL;
-            size_t line_len = 0;
-            while (status && fgetdyns(&line, &line_len, fp)) {
-                if (has_new_line_char_at_the_end(line)) line[strlen(line) - 1] = '\0';
-
-                regmatch_t rm[1];
-                int reg_state = regexec(&regex, line, 1, rm, 0);
-                if ((reg_state == 0 && !cmd->flags.v) || (reg_state == REG_NOMATCH && cmd->flags.v)) {
-                    if (cmd->flags.o) {
-                        status = set_all_matches_from_line(m_lines_ptr, &regex, line, rm,
-                                                           cmd->search_files[i], line_num);
-                    } else {
-                        int reg_state = regexec(&regex, line, 1, rm, 0);
-                        if ((reg_state == 0 && !cmd->flags.v) || (reg_state == REG_NOMATCH && cmd->flags.v)) {
-                            matched_line ml = {NULL, line_num, NULL};
-                            if (!append_str(&ml.file_name, cmd->search_files[i])) status = false;
-                            if (status && !append_str(&ml.line, line)) status = false;
-                            if (status) status = append_matched_line(m_lines_ptr, &ml);
-                        } else {
-                            // Error.
-                        }
-                    }
-                }
-
-                ++line_num;
-                // free(line);
-                // line = NULL;
-            }
-
-            fclose(fp);
-        } else if (!cmd->flags.s) {
-            print_error("grep", cmd->search_files[i]);
+    FILE* fp = fopen(search_file, "r");
+    if (status && fp) {
+        size_t line_num = 1;
+        char* line = NULL;
+        size_t line_len = 0;
+        while (status && fgetdyns(&line, &line_len, fp)) {
+            if (has_new_line_char_at_the_end(line)) line[strlen(line) - 1] = '\0';
+            regexec_on_line(&regex, line, cad, m_lines_ptr, search_file, line_num);
+            ++line_num;
+            free(line);
+            line = NULL;
         }
+        fclose(fp);
+        *file_found = true;
+    } else if (status && !cad->flags.s) {
+        print_error("grep", search_file);
+        *file_found = false;
+    } else if (!status) {
+        errno = 0;
     }
-
     regfree(&regex);
     return status;
 }
 
-bool set_all_matches_from_line(matched_line** m_lines, regex_t* regex, char* str, regmatch_t* rm,
+void output_regex_error(size_t error, regex_t* regex_ptr) {
+    // If errbuf_size is 0 returns the size of the buffer needed to hold the generated string.
+    size_t err_len = regerror(error, regex_ptr, (char*)NULL, 0);
+    char* err_buf = (char*)allocate_with_memset(err_len);
+    if (err_buf) {
+        regerror(error, regex_ptr, err_buf, err_len);
+        print_error("grep", err_buf);
+        free(err_buf);
+    }
+}
+
+bool regexec_on_line(regex_t* regex_ptr, const char* line, const cmd_args_data* cad,
+                     matched_line** m_lines_ptr, const char* search_file, size_t line_num) {
+    bool status = true;
+    regmatch_t rm[1];
+    int error = regexec(regex_ptr, line, 1, rm, 0);
+    if ((error == 0 && !cad->flags.v) || (error == REG_NOMATCH && cad->flags.v)) {
+        if (cad->flags.o) {
+            status = set_all_matches_from_line(m_lines_ptr, regex_ptr, line, rm, search_file, line_num);
+        } else {
+            matched_line ml = {NULL, 0, NULL};
+            status = fill_matched_line(&ml, line_num, search_file, line);
+            if (status) status = append_matched_line(m_lines_ptr, &ml);
+            free_matched_line(&ml);
+        }
+    } else if (error > REG_NOMATCH) {
+        output_regex_error(error, regex_ptr);
+        status = false;
+    }
+    return status;
+}
+
+bool set_all_matches_from_line(matched_line** m_lines, regex_t* regex, const char* str, regmatch_t* rm,
                                const char* file_name, size_t line_number) {
     bool status = true;
     bool reg_state = 0;
     while (status && reg_state == 0) {
         reg_state = regexec(regex, str, 1, rm, 0);
         if (reg_state == 0 && *str) {
-            matched_line ml = {NULL, line_number, NULL};
-            if (!append_str(&ml.file_name, file_name)) status = false;
-
+            matched_line ml = {NULL, 0, NULL};
             int len = rm[0].rm_eo - rm[0].rm_so;
             char line[len + 1];
             substr(line, str, rm[0].rm_so, len);
-            if (status && !append_str(&ml.line, line)) status = false;
-
+            status = fill_matched_line(&ml, line_number, file_name, line);
             if (status) status = append_matched_line(m_lines, &ml);
-            if (status) str += rm[0].rm_eo;
+            if (status) {
+                str += rm[0].rm_eo;
+            }
+            free_matched_line(&ml);
         }
     }
     return status;

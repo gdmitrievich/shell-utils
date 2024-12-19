@@ -1,6 +1,7 @@
 #include "grep_common.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 bool add_pattern_to_patterns_string(char** patterns_str_ptr, const char* pattern) {
     bool status = true;
@@ -26,7 +27,7 @@ char** add_str_to_str_arr_dynamically(char*** str_arr_ptr, const char* str) {
 
     if (p) {
         *str_arr_ptr = p;
-        append_str(*str_arr_ptr + next_idx, str);
+        if (!append_str(*str_arr_ptr + next_idx, str)) status = false;
         *(*str_arr_ptr + next_idx + 1) = NULL;
     } else {
         status = false;
@@ -40,3 +41,5 @@ size_t get_size_of_str_arr(char** str_arr) {
     while (str_arr[s] != NULL) ++s;
     return s;
 }
+
+int has_new_line_char_at_the_end(const char* line) { return is_new_line_char(line[strlen(line) - 1]); }

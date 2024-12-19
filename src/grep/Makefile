@@ -3,13 +3,9 @@ TARGET = s21_grep
 COMMON_DIR = ../common
 
 CC = gcc
-CFLAGS = -g -Wall -Wextra -Werror -std=c11
+CFLAGS = -Wall -Wextra -Werror -std=c11
 
 RM = rm -rf
-
-# TOOLS
-CLANG_FORMAT_OPTS = -i
-CPPCHECK_OPTS = --enable=all --template=gcc --language=c
 
 # SOURCES
 SRCS = $(wildcard *.c)
@@ -39,8 +35,3 @@ clean:
 full_clean: clean
 	$(RM) $(TARGET)
 .PHONY: full_clean
-
-tools:
-	@clang-format -i $(SRCS) *.h
-	@cppcheck $(CPPCHECK_OPTS) $(SRCS)
-.PHONY: tools

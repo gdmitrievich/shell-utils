@@ -107,12 +107,17 @@ done
 
 echo ""
 echo "Additional tests"
-echo "Tests with -s option"
+echo "Tests with -s flag"
 run_test "Test $test_number (-s and -e): " s -e "int" "g o o d j o b"
 ((test_number++))
 run_test "Test $test_number (-s and -f): " s -f "nofile.txt" "file.txt"
 ((test_number++))
 run_test "Test $test_number (-s and -f): " s -f "$template_file" "file.txt good job"
+((test_number++))
+
+echo ""
+echo "Test with -n flag and files (both existed and nonexisted)"
+run_test "Test $test_number (-n and -e): " n -e "int" "a b $test_files"
 ((test_number++))
 
 echo ""
