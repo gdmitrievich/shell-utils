@@ -9,19 +9,16 @@
 #include "grep_common.h"
 
 bool set_matched_lines_with_patterns_from_file(matched_line** m_lines_ptr, const cmd_args_data* cad,
-                                               const char* search_file) {
+                                               const char* search_file, bool* file_found) {
     if (cad->patterns == NULL) return false;
-
     bool status = true;
     regex_t regex;
     size_t error = 0;
-    // REG_EXTENDED to use "|" in pattern.
     if ((error = regcomp(&regex, cad->patterns, REG_EXTENDED | (cad->flags.i ? REG_ICASE : 0))) >
         REG_NOMATCH) {
         output_regex_error(error, &regex);
         status = false;
     }
-
     FILE* fp = fopen(search_file, "r");
     if (fp) {
         size_t line_num = 1;
@@ -39,19 +36,21 @@ bool set_matched_lines_with_patterns_from_file(matched_line** m_lines_ptr, const
                     matched_line ml = {NULL, 0, NULL};
                     status = fill_matched_line(&ml, line_num, search_file, line);
                     if (status) status = append_matched_line(m_lines_ptr, &ml);
+                    free_matched_line(&ml);
                 }
             } else if (error > REG_NOMATCH) {
                 output_regex_error(error, &regex);
                 status = false;
             }
-
             ++line_num;
             free(line);
             line = NULL;
         }
         fclose(fp);
+		*file_found = true;
     } else if (!cad->flags.s) {
         print_error("grep", search_file);
+		*file_found = false;
     }
     regfree(&regex);
     return status;
@@ -81,7 +80,10 @@ bool set_all_matches_from_line(matched_line** m_lines, regex_t* regex, char* str
             substr(line, str, rm[0].rm_so, len);
             status = fill_matched_line(&ml, line_number, file_name, line);
             if (status) status = append_matched_line(m_lines, &ml);
-            if (status) str += rm[0].rm_eo;
+            if (status) {
+                str += rm[0].rm_eo;
+            }
+            free_matched_line(&ml);
         }
     }
     return status;

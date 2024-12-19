@@ -8,7 +8,7 @@
 #include "matched_line.h"
 
 bool set_matched_lines_with_patterns_from_file(matched_line** m_lines_ptr, const cmd_args_data* cad,
-                                               const char* search_file);
+                                               const char* search_file, bool* file_found);
 
 bool set_reg_exec_results_as_matched_lines(matched_line** m_lines_ptr, const cmd_args_data* cmd);
 void output_regex_error(size_t error, regex_t* regex_ptr);
