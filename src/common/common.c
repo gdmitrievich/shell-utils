@@ -55,7 +55,7 @@ char** append_binary_str(char** str, size_t str_len, const char* src, size_t src
         ptr = allocate_with_memset(src_len + 1);
     if (ptr) {
         *str = ptr;
-		memcpy(*str + str_len, src, src_len);
+        memcpy(*str + str_len, src, src_len);
         status = true;
     }
     return status ? str : NULL;

@@ -35,7 +35,9 @@ bool process_flags(flags flags, int first_filepath_idx, int argc, char** argv) {
     return status;
 }
 
-int has_new_line_char_at_the_end_binary(const char* line, size_t len) { return is_new_line_char(line[len - 1]); }
+int has_new_line_char_at_the_end_binary(const char* line, size_t len) {
+    return is_new_line_char(line[len - 1]);
+}
 
 int fpeek(FILE* f) {
     if (!f) return -1;
