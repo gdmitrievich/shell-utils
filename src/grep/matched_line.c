@@ -73,7 +73,7 @@ size_t get_matched_lines_count(const matched_line* m_lines) {
 }
 
 bool copy_matched_line(matched_line* dest, const matched_line* src) {
-	return fill_matched_line(dest, src->line_number, src->file_name, src->line);
+    return fill_matched_line(dest, src->line_number, src->file_name, src->line);
 }
 
 int is_last(const matched_line* ml) { return ml->line_number == -1; }
