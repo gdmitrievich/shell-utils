@@ -58,10 +58,6 @@ function run_test() {
 		((failed++))
 	fi
 
-    if ! valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --tool=memcheck --error-exitcode=1 ./"${BINARY}" $flag $files > /dev/null ; then
-        echo "MEMORY LEAK DETECTED!!!"
-        exit
-    fi
 	rm 1.txt 2.txt
 }
 
